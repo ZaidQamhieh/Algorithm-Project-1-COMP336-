@@ -5,7 +5,8 @@ import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.*;
+
+import java.io.File;
 import java.util.Scanner;
 
 public class fileHandler implements EventHandler<ActionEvent> {
@@ -25,10 +26,11 @@ public class fileHandler implements EventHandler<ActionEvent> {
 
             while (sc.hasNextLine()) {
                 String[] parts = sc.nextLine().trim().split(",");
-                String name = parts[0];
-                int time = 0;
-                int productivity = 0;
+                String name;
+                int time;
+                int productivity;
                 try {
+                    name = parts[0];
                     time = Integer.parseInt(parts[1]);
                     productivity = Integer.parseInt(parts[2]);
                 } catch (Exception ex) {

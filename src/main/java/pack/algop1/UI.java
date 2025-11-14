@@ -20,18 +20,6 @@ public class UI {
         this.scene = scene;
     }
 
-    private void tb() {
-        tb = new TabPane();
-        Tab[] t = new Tab[4];
-        String[] names = new String[]{"Tasks View", "Dynamic Solution", "Greedy Solution", "Comparison"};
-        for (int i = 0; i < 4; i++) {
-            t[i] = new Tab(names[i]);
-            t[i].setClosable(false);
-        }
-        tb.getTabs().addAll(t);
-        t[0].setContent(tasksTableSetup());
-    }
-
     public Pane startPage() {
         Label l = new Label("Select An Option");
         Button[] b = new Button[]{new Button("Read File"), new Button("Add Task")};
@@ -48,6 +36,19 @@ public class UI {
         VBox vb = new VBox(l, b[0], b[1]);
         vb.getStylesheets().add("style.css");
         return vb;
+    }
+
+    private void tb() {
+        tb = new TabPane();
+        Tab[] t = new Tab[4];
+        String[] names = new String[]{"Tasks View", "Dynamic Solution", "Greedy Solution", "Comparison"};
+        for (int i = 0; i < 4; i++) {
+            t[i] = new Tab(names[i]);
+            t[i].setClosable(false);
+        }
+        tb.getTabs().addAll(t);
+        t[0].setContent(tasksTableSetup());
+        t[1].setContent(new Solutions(tasks).tab());
     }
 
     private VBox tasksTableSetup() {
@@ -119,6 +120,10 @@ public class UI {
                 return;
             if (inputValidation(textFields)) {
                 Task task = new Task(textFields[0].getText(), Integer.parseInt(textFields[1].getText()), Integer.parseInt(textFields[2].getText()));
+                if (tasks.contains(task)) {
+                    showError("Duplicate Found", "The Task Already Exists", "Please Make Sure To Add An Non Duplicated Task", Alert.AlertType.WARNING);
+                    return;
+                }
                 tasks.add(task);
                 updateTable();
             }
@@ -139,9 +144,16 @@ public class UI {
             if (r != ButtonType.OK)
                 return;
             if (inputValidation(textFields)) {
-                t.setName(textFields[0].getText().trim());
-                t.setTime(Integer.parseInt(textFields[1].getText().trim()));
-                t.setProdctivity(Integer.parseInt(textFields[2].getText().trim()));
+                String name = textFields[0].getText().trim();
+                int time = Integer.parseInt(textFields[1].getText().trim());
+                int prodctivity = Integer.parseInt(textFields[2].getText().trim());
+                if (tasks.contains(new Task(name, time, prodctivity))) {
+                    showError("Duplicate Found", "The Task Already Exists", "The Edits Would Cause A Duplicate Task To Be Created", Alert.AlertType.WARNING);
+                    return;
+                }
+                t.setName(name);
+                t.setTime(time);
+                t.setProdctivity(prodctivity);
                 updateTable();
             }
         });
