@@ -14,13 +14,14 @@ public class UI {
     private final Scene scene;
     private final myArrayList<Task> tasks = new myArrayList<>();
     private final TableView<Task> tv = new TableView<>();
+    private TabPane tb = null;
 
     public UI(Scene scene) {
         this.scene = scene;
     }
 
-    public TabPane tb() {
-        TabPane tb = new TabPane();
+    private void tb() {
+        tb = new TabPane();
         Tab[] t = new Tab[4];
         String[] names = new String[]{"Tasks View", "Dynamic Solution", "Greedy Solution", "Comparison"};
         for (int i = 0; i < 4; i++) {
@@ -29,7 +30,6 @@ public class UI {
         }
         tb.getTabs().addAll(t);
         t[0].setContent(tasksTableSetup());
-        return tb;
     }
 
     public Pane startPage() {
@@ -42,106 +42,12 @@ public class UI {
         });
         b[1].setOnAction(e ->
         {
-            addEditTask("Add",false, null);
+            addTask();
             refreshPane();
         });
         VBox vb = new VBox(l, b[0], b[1]);
         vb.getStylesheets().add("style.css");
         return vb;
-    }
-
-    private Alert taskActionsTemplate(String Action, TextField[] tf) {
-        GridPane gp = new GridPane();
-        Label[] l = new Label[]
-                {
-                        new Label("Task Name:"),
-                        new Label("Task Time:"),
-                        new Label("Task Productivity:")
-                };
-        if (tf != null) {
-            for (int i = 0; i < 3; i++) {
-                tf[i] = new TextField();
-                gp.add(l[i], 0, i);
-                gp.add(tf[i], 1, i);
-            }
-        }
-        gp.getStylesheets().add("style.css");
-        gp.setVgap(20);
-        gp.setHgap(20);
-        Alert s = new Alert(Alert.AlertType.INFORMATION);
-        s.setContentText(null);
-        s.setHeaderText(" ");
-        s.setGraphic(gp);
-        s.setTitle(Action);
-        return s;
-    }
-
-    private void addEditTask(String action,boolean edit, Task t) {
-        TextField[] textFields = new TextField[3];
-        Alert a = taskActionsTemplate(action, textFields);
-        if (edit) {
-            if (t == null) {
-                Alert taskAlert = new Alert(Alert.AlertType.WARNING, "Please Select A Task");
-                taskAlert.setContentText("Please Select A Task First");
-                taskAlert.setTitle("Invalid Task");
-                taskAlert.setHeaderText(null);
-                taskAlert.showAndWait();
-                return;
-            }
-            textFields[0].setText(t.getName());
-            textFields[1].setText(t.getTime() + "");
-            textFields[2].setText(t.getProdctivity() + "");
-        }
-        a.showAndWait().ifPresent(r -> {
-            if (r != ButtonType.OK)
-                return;
-            String name = textFields[0].getText();
-            int time, productivity;
-
-            try {
-                time = Integer.parseInt(textFields[1].getText());
-                productivity = Integer.parseInt(textFields[2].getText());
-            } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "Enter Valid Numbers!", ButtonType.OK).showAndWait();
-                addEditTask(action,edit,t);
-                return;
-            }
-
-            Task task = new Task(name, time, productivity);
-            if (!taskInputValidation(task)) {
-                new Alert(Alert.AlertType.ERROR, "Invalid Task Data!", ButtonType.OK).showAndWait();
-                addEditTask(action,edit,t);
-                return;
-            }
-
-            tasks.add(task);
-            refreshPane();
-        });
-    }
-
-
-    private void deleteTask() {
-        tasks.remove(tv.getSelectionModel().getSelectedItem());
-        refreshPane();
-    }
-
-    private boolean taskInputValidation(Task task) {
-        if (task == null)
-            return false;
-        if (task.getName() == null || task.getName().isEmpty())
-            return false;
-        if (task.getTime() < 0 || task.getProdctivity() < 0)
-            return false;
-        return true;
-    }
-
-    private void refreshPane() {
-        scene.setRoot(new Pane());
-        if (!tasks.isEmpty())
-            scene.setRoot(tb());
-        else
-            scene.setRoot(startPage());
-        updateTable();
     }
 
     private VBox tasksTableSetup() {
@@ -156,9 +62,9 @@ public class UI {
         hb.setAlignment(Pos.CENTER);
         StackPane sp = new StackPane(rec, hb);
 
-        b[0].setOnAction(e -> addEditTask("Add",false, null));
-        b[1].setOnAction(e -> addEditTask("Edit",true, tv.getSelectionModel().getSelectedItem()));
-        b[2].setOnAction(e -> deleteTask());
+        b[0].setOnAction(e -> addTask());
+        b[1].setOnAction(e -> editTask(tv.getSelectionModel().getSelectedItem()));
+        b[2].setOnAction(e -> deleteTask(tv.getSelectionModel().getSelectedItem()));
 
         tv.setEditable(false);
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -166,12 +72,15 @@ public class UI {
 
         TableColumn<Task, String> c1 = new TableColumn<>("Name");
         c1.setCellValueFactory(new PropertyValueFactory<>("name"));
+        c1.setEditable(false);
 
         TableColumn<Task, Integer> c2 = new TableColumn<>("Time");
         c2.setCellValueFactory(new PropertyValueFactory<>("time"));
+        c2.setEditable(false);
 
         TableColumn<Task, Integer> c3 = new TableColumn<>("Productivity");
         c3.setCellValueFactory(new PropertyValueFactory<>("prodctivity"));
+        c3.setEditable(false);
 
         tv.getColumns().clear();
         tv.getColumns().addAll(c1, c2, c3);
@@ -181,11 +90,127 @@ public class UI {
         return vb;
     }
 
+
+    private Alert taskActionsTemplate(String Action, TextField[] tf) {
+        GridPane gp = new GridPane();
+        String[] labels = {"Task Name:", "Task Time:", "Task Productivity:"};
+
+        for (int i = 0; i < 3; i++) {
+            tf[i] = new TextField();
+            gp.add(new Label(labels[i]), 0, i);
+            gp.add(tf[i], 1, i);
+        }
+        gp.getStylesheets().add("style.css");
+        gp.setVgap(20);
+        gp.setHgap(20);
+        Alert s = new Alert(Alert.AlertType.CONFIRMATION);
+        s.setContentText(null);
+        s.setHeaderText(" ");
+        s.setGraphic(gp);
+        s.setTitle(Action);
+        return s;
+    }
+
+    private void addTask() {
+        TextField[] textFields = new TextField[3];
+        Alert a = taskActionsTemplate("Add Task", textFields);
+        a.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK)
+                return;
+            if (inputValidation(textFields)) {
+                Task task = new Task(textFields[0].getText(), Integer.parseInt(textFields[1].getText()), Integer.parseInt(textFields[2].getText()));
+                tasks.add(task);
+                updateTable();
+            }
+        });
+    }
+
+    private void editTask(Task t) {
+        TextField[] textFields = new TextField[3];
+        Alert a = taskActionsTemplate("Edit Task", textFields);
+        if (t == null) {
+            showError("Missing Task", "Try Again", "Please Select A Task From The Table", Alert.AlertType.WARNING);
+            return;
+        }
+        textFields[0].setText(t.getName());
+        textFields[1].setText(t.getTime() + "");
+        textFields[2].setText(t.getProdctivity() + "");
+        a.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK)
+                return;
+            if (inputValidation(textFields)) {
+                t.setName(textFields[0].getText().trim());
+                t.setTime(Integer.parseInt(textFields[1].getText().trim()));
+                t.setProdctivity(Integer.parseInt(textFields[2].getText().trim()));
+                updateTable();
+            }
+        });
+    }
+
+    private void deleteTask(Task task) {
+        if (task != null) {
+            tasks.remove(task);
+            updateTable();
+        } else
+            showError("Missing Task", "Try Again", "Please Select A Task From The Table", Alert.AlertType.WARNING);
+    }
+
+    private boolean inputValidation(TextField[] tf) {
+        String[] field = {"Task Name", "Task Time", "Task Productivity"};
+        for (int i = 0; i < 3; i++) {
+            if (tf[i].getText().isEmpty()) {
+                showError("Empty Field", "Please Fill The Fields", "The " + field[i] + " Field Shouldn't Be Empty!", Alert.AlertType.WARNING);
+                return false;
+            }
+        }
+        String name;
+        int time, productivity;
+        try {
+            name = tf[0].getText().trim();
+            time = Integer.parseInt(tf[1].getText().trim());
+            productivity = Integer.parseInt(tf[2].getText().trim());
+        } catch (Exception e) {
+            showError("Invalid Format", "Try Again", "Invalid Input Format\nUse Only Integers In The Time And Productivity Fields", Alert.AlertType.ERROR);
+            return false;
+        }
+        if (name.isEmpty()) {
+            showError("Invalid Name", "Try Again", "Invalid Task Name!\nThe Name Shouldn't Be Empty", Alert.AlertType.ERROR);
+            return false;
+        } else if (time < 0) {
+            showError("Invalid Time", "Try Again", "Invalid Task Time!\nThe Time Shouldn't Be Negative", Alert.AlertType.ERROR);
+            return false;
+        } else if (productivity < 0) {
+            showError("Invalid Productivity", "Try Again", "Invalid Task Productivity!\nThe Productivity Shouldn't Be Negative", Alert.AlertType.ERROR);
+            return false;
+        }
+        return true;
+    }
+
+    private void refreshPane() {
+        if (!tasks.isEmpty()) {
+            if (tb == null) {
+                tb();
+            }
+            scene.setRoot(tb);
+            updateTable();
+        } else
+            scene.setRoot(startPage());
+    }
+
     private void updateTable() {
+        tv.getItems().clear();
         ObservableList<Task> data = FXCollections.observableArrayList();
         for (Task task : tasks) {
             data.add(task);
         }
         tv.setItems(data);
+    }
+
+    private void showError(String title, String header, String msg, Alert.AlertType type) {
+        Alert a = new Alert(type);
+        a.setHeaderText(header);
+        a.setContentText(msg);
+        a.setTitle(title);
+        a.showAndWait();
     }
 }
