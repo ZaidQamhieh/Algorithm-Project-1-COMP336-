@@ -2,13 +2,18 @@ package pack.algop1;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Driver extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        stage.setScene(new Scene(new UI(stage).startPage(),500,500));
+        Scene scene = new Scene(new Pane());
+        UI ui = new UI(scene);
+        scene.setRoot(ui.startPage());
+        stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 
