@@ -12,6 +12,7 @@ public class Solutions {
     private final ListView<String> selectedTasksListDP = new ListView<>();
     private final ListView<String> selectedTasksListGreedy = new ListView<>();
     private final TextArea greedyTA = new TextArea();
+    private final TextArea comparisonTA = new TextArea();
     private final Label maxDP = new Label();
 
     public Solutions(myArrayList<Task> tasks) {
@@ -30,6 +31,10 @@ public class Solutions {
 
         greedyTA.setEditable(false);
         greedyTA.setWrapText(true);
+
+        comparisonTA.setEditable(false);
+        comparisonTA.setWrapText(true);
+        comparisonTA.setPrefHeight(150);
     }
 
     public VBox p() {
@@ -51,7 +56,9 @@ public class Solutions {
                 new Label("Greedy Solution"),
                 greedyTA,
                 new Label("Chosen Tasks (Greedy)"),
-                selectedTasksListGreedy
+                selectedTasksListGreedy,
+                new Label("DP vs Greedy Comparison"),
+                comparisonTA
         );
 
         calculate.setOnAction(e -> {
@@ -65,7 +72,11 @@ public class Solutions {
             int[][] dp = DynamicSolution(totalHours);
             showDP(dp);
             showSelectedTasksDP(dp, totalHours);
-            greedySolution(totalHours);
+
+            int greedyValue = greedySolution(totalHours);
+            int dpValue = dp[tasks.size()][totalHours];
+
+            compareDPGreedy(dpValue, greedyValue);
         });
 
         return vbox;
@@ -87,7 +98,7 @@ public class Solutions {
             }
         }
 
-        maxDP.setText("Max Productivity (DP)= " + dp[n][totalHours]);
+        maxDP.setText("Max Productivity (DP) = " + dp[n][totalHours]);
         return dp;
     }
 
@@ -129,11 +140,10 @@ public class Solutions {
         }
 
         grid.setStyle("-fx-background-color: #bca4ec");
-
         dpScroll.setContent(grid);
     }
 
-    private void greedySolution(int totalHours) {
+    private int greedySolution(int totalHours) {
 
         selectedTasksListGreedy.getItems().clear();
 
@@ -144,10 +154,9 @@ public class Solutions {
         quickSort(arr, 0, arr.length - 1);
 
         int ans = 0, used = 0, temp = totalHours;
-        int last = -1, cnt = 0;
+        int last = -1, selected = 0;
 
         for (int i = 0; i < arr.length; i++) {
-
             if (temp == 0) break;
 
             if (arr[i].getTime() <= temp) {
@@ -156,26 +165,45 @@ public class Solutions {
                 temp -= arr[i].getTime();
                 used += arr[i].getTime();
                 last = i;
-                cnt++;
+                selected++;
 
                 selectedTasksListGreedy.getItems().add(arr[i].toString());
             }
         }
 
-        String s0 = "Total Selected Tasks: " + cnt;
+        String s0 = "Total Selected Tasks: " + selected;
         String s1 = (last == -1 ? "Last Selected Item: None" :
                 "Last Selected Item: " + arr[last].getName());
         String s2 = "Hours Used: " + used + "/" + totalHours;
         String s3 = "Remaining Hours: " + (totalHours - used);
         String s4 = "Total Productivity: " + ans;
 
-        greedyTA.setText(
-                s0 + "\n" +
-                        s1 + "\n" +
-                        s2 + "\n" +
-                        s3 + "\n" +
-                        s4
-        );
+        greedyTA.setText(s0 + "\n" + s1 + "\n" + s2 + "\n" + s3 + "\n" + s4);
+
+        return ans;
+    }
+
+    private void compareDPGreedy(int dpValue, int greedyValue) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Dynamic Programming Productivity: ").append(dpValue).append("\n");
+        sb.append("Greedy Productivity: ").append(greedyValue).append("\n\n");
+
+        if (dpValue > greedyValue) {
+            sb.append("DP gives a better solution.\n");
+            sb.append("DP is higher by ").append(dpValue - greedyValue).append(" productivity points.\n\n");
+            sb.append("Explanation: DP checks every possible combination of tasks, ");
+            sb.append("while Greedy only selects based on sorted order, which can miss better combinations.\n");
+        }
+        else if (greedyValue > dpValue) {
+            sb.append("Greedy gives a better solution (this is unusual).\n");
+        }
+        else {
+            sb.append("Both methods produced the same total productivity.\n");
+        }
+
+        comparisonTA.setText(sb.toString());
     }
 
     public <T extends Comparable<T>> void quickSort(T[] a, int l, int r) {
