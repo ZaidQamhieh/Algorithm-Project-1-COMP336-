@@ -66,14 +66,19 @@ public class Solutions {
                 totalHours = 0;
             }
 
+            long dpStart = System.nanoTime();
             int[][] dp = DynamicSolution(totalHours);
             showDP(dp);
             showSelectedTasksDP(dp, totalHours);
+            long dpEnd = System.nanoTime();
 
+            long greedyStart = System.nanoTime();
             int greedyValue = greedySolution(totalHours);
+            long greedyEnd = System.nanoTime();
+
             int dpValue = dp[tasks.size()][totalHours];
 
-            compareDPGreedy(dpValue, greedyValue);
+            compareDPGreedy(dpValue, greedyValue, dpEnd - dpStart, greedyEnd - greedyStart);
         });
 
         return vbox;
@@ -182,22 +187,22 @@ public class Solutions {
         return ans;
     }
 
-    private void compareDPGreedy(int dpValue, int greedyValue) {
+    private void compareDPGreedy(int dpValue, int greedyValue, long dpTime, long greedyTime) {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Dynamic Programming Productivity: ").append(dpValue).append("\n");
+        sb.append("DP Productivity: ").append(dpValue).append("\n");
         sb.append("Greedy Productivity: ").append(greedyValue).append("\n\n");
 
+        sb.append("DP Time: ").append(dpTime).append(" ns\n");
+        sb.append("Greedy Time: ").append(greedyTime).append(" ns\n\n");
+
         if (dpValue > greedyValue) {
-            sb.append("DP gives a better solution.\n");
-            sb.append("DP is higher by ").append(dpValue - greedyValue).append(" productivity points.\n\n");
-            sb.append("Explanation: DP checks every possible combination of tasks, ");
-            sb.append("while Greedy only selects based on sorted order, which can miss better combinations.\n");
+            sb.append("DP Gives A Better Solution in Terms Of Productivity.\n");
         } else if (greedyValue > dpValue) {
-            sb.append("Greedy gives a better solution (this is unusual).\n");
+            sb.append("Greedy Gives A Better Solution in Terms Of  Productivity.\n");
         } else {
-            sb.append("Both methods produced the same total productivity.\n");
+            sb.append("Both Give The Same Productivity.\n");
         }
 
         comparisonTA.setText(sb.toString());

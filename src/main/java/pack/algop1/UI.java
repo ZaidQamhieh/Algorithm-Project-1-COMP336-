@@ -52,13 +52,11 @@ public class UI {
         topBar.setStyle("-fx-background-color: rgb(223,205,255);");
 
         readFileBtn.setOnAction(e -> {
-            new fileHandler(tasks).handle(e);
+            new fileHandler(tasks).readFile();
             updateTable();
         });
 
-        saveFileBtn.setOnAction(e -> {
-            System.out.println("Print");
-        });
+        saveFileBtn.setOnAction(e ->new  fileHandler(tasks).saveOnFile());
 
         addBtn.setOnAction(e -> addTask());
         editBtn.setOnAction(e -> editTask(tv.getSelectionModel().getSelectedItem()));
