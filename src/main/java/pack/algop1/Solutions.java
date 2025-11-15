@@ -18,11 +18,8 @@ public class Solutions {
     public Solutions(myArrayList<Task> tasks) {
         this.tasks = tasks;
 
-        double w = Screen.getPrimary().getVisualBounds().getWidth();
-        double h = Screen.getPrimary().getVisualBounds().getHeight();
-
-        dpScroll.setPrefViewportWidth(w);
-        dpScroll.setPrefViewportHeight(h / 3);
+        dpScroll.setPrefViewportWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2);
+        dpScroll.setPrefViewportHeight(Screen.getPrimary().getVisualBounds().getHeight() / 3);
         dpScroll.setFitToHeight(false);
         dpScroll.setFitToWidth(false);
 
@@ -131,9 +128,11 @@ public class Solutions {
         for (int w = 0; w < cols; w++) {
             grid.add(new Label(w + "h"), w + 1, 0);
         }
-
+        grid.add(new Label("No Task"), 0, 1);
+        for (int i = 1; i <= tasks.size(); i++) {
+            grid.add(new Label(tasks.get(i - 1).getName()), 0, i + 1);
+        }
         for (int i = 0; i < rows; i++) {
-            grid.add(new Label("Task: " + i), 0, i + 1);
             for (int j = 0; j < cols; j++) {
                 grid.add(new Label(String.valueOf(dp[i][j])), j + 1, i + 1);
             }
@@ -195,11 +194,9 @@ public class Solutions {
             sb.append("DP is higher by ").append(dpValue - greedyValue).append(" productivity points.\n\n");
             sb.append("Explanation: DP checks every possible combination of tasks, ");
             sb.append("while Greedy only selects based on sorted order, which can miss better combinations.\n");
-        }
-        else if (greedyValue > dpValue) {
+        } else if (greedyValue > dpValue) {
             sb.append("Greedy gives a better solution (this is unusual).\n");
-        }
-        else {
+        } else {
             sb.append("Both methods produced the same total productivity.\n");
         }
 

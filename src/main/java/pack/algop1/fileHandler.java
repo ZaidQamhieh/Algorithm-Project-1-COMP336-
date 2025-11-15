@@ -24,7 +24,10 @@ public class fileHandler implements EventHandler<ActionEvent> {
         try {
             Scanner sc = new Scanner(file);
             int capacity = sc.nextInt();
-            list.updateCapacity(capacity);
+            if (list.isEmpty())
+                list.updateCapacity(capacity);
+            else
+                list.updateCapacity(capacity+list.size());
             while (sc.hasNextLine()) {
                 String[] parts = sc.nextLine().trim().split(",");
                 String name;

@@ -4,13 +4,13 @@ import java.util.Iterator;
 
 public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
     private T[] list;
-    private int capacity = 5;
+    private int capacity;
     private int index;
 
     public myArrayList(int capacity) {
         list = (T[]) new Comparable[capacity];
-        index = 0;
         this.capacity = capacity;
+        index = 0;
     }
 
     private void resize() {
