@@ -7,9 +7,10 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
     private int capacity = 5;
     private int index;
 
-    public myArrayList() {
+    public myArrayList(int capacity) {
         list = (T[]) new Comparable[capacity];
         index = 0;
+        this.capacity = capacity;
     }
 
     private void resize() {
@@ -26,21 +27,6 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
     public void add(T t) {
         resize();
         list[index++] = t;
-    }
-
-    public void addAll(myArrayList<T> other) {
-        for (int i = 0; i < other.size(); i++) {
-            add(other.get(i));
-        }
-    }
-
-    public myArrayList(myArrayList<T> oList, int capacity) {
-        this.capacity = capacity;
-        this.list = (T[]) new Comparable[capacity];
-        this.index = 0;
-        for (int i = 0; i < oList.size(); i++) {
-            add(oList.get(i));
-        }
     }
 
     public void clear() {
@@ -69,6 +55,15 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
         if (index < 0 || index >= this.index)
             throw new IndexOutOfBoundsException();
         return list[index];
+    }
+
+    public void updateCapacity(int newCap) {
+        if (newCap <= list.length) return;
+
+        T[] temp = (T[]) new Comparable[newCap];
+        for (int i = 0; i < size(); i++)
+            temp[i] = list[i];
+        list = temp;
     }
 
     public boolean contains(T obj) {

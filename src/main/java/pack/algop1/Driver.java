@@ -10,8 +10,8 @@ public class Driver extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Scene scene = new Scene(new Pane());
-        UI ui = new UI(scene);
-        scene.setRoot(ui.startPage());
+        UI ui = new UI();
+        scene.setRoot(ui.p());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();

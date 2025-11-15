@@ -13,7 +13,7 @@
 .button {
     -fx-font-size: 15px;
     -fx-padding: 10 20;
-    -fx-min-width:300;
+    -fx-min-width:150;
     -fx-background-color: #8e4ae2;
     -fx-text-fill: white;
     -fx-background-radius: 8;
