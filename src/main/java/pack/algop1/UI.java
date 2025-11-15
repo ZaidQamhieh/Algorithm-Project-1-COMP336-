@@ -40,15 +40,15 @@ public class UI {
 
     private void tb() {
         tb = new TabPane();
-        Tab[] t = new Tab[4];
-        String[] names = new String[]{"Tasks View", "Dynamic Solution", "Greedy Solution", "Comparison"};
-        for (int i = 0; i < 4; i++) {
+        Tab[] t = new Tab[2];
+        String[] names = new String[]{"Tasks View", "Solutions View"};
+        for (int i = 0; i < 2; i++) {
             t[i] = new Tab(names[i]);
             t[i].setClosable(false);
         }
         tb.getTabs().addAll(t);
         t[0].setContent(tasksTableSetup());
-        t[1].setContent(new Solutions(tasks).tab());
+        t[1].setContent(new Solutions(tasks).p());
     }
 
     private VBox tasksTableSetup() {
