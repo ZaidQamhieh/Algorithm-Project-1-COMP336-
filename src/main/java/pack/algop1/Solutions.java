@@ -14,9 +14,14 @@ public class Solutions {
     private final TextArea greedyTA = new TextArea();
     private final TextArea comparisonTA = new TextArea();
     private final Label maxDP = new Label();
+    private final UI ui;
+    private final TextField timeTF = new TextField();
+    private final Button calculate = new Button("Calculate");
 
-    public Solutions(myArrayList<Task> tasks) {
-        this.tasks = tasks;
+
+    public Solutions(UI ui) {
+        this.ui = ui;
+        tasks = ui.getTasks();
 
         dpScroll.setPrefViewportWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2);
         dpScroll.setPrefViewportHeight(Screen.getPrimary().getVisualBounds().getHeight() / 3);
@@ -37,10 +42,8 @@ public class Solutions {
     public VBox p() {
 
         Label totalHoursLabel = new Label("Total Hours");
-        TextField tf = new TextField();
-        Button calculate = new Button("Calculate");
 
-        HBox hbox = new HBox(20, totalHoursLabel, tf, calculate);
+        HBox hbox = new HBox(20, totalHoursLabel, timeTF, calculate);
 
         VBox vbox = new VBox(
                 20,
@@ -61,7 +64,8 @@ public class Solutions {
         calculate.setOnAction(e -> {
             int totalHours;
             try {
-                totalHours = Integer.parseInt(tf.getText());
+                totalHours = Integer.parseInt(timeTF.getText());
+                ui.setTotalHours(totalHours);
             } catch (Exception ex) {
                 totalHours = 0;
             }
@@ -229,5 +233,10 @@ public class Solutions {
 
         quickSort(a, l, j);
         quickSort(a, i, r);
+    }
+
+    public void updateTime(int time) {
+        timeTF.setText(String.valueOf(time));
+        calculate.fire();
     }
 }

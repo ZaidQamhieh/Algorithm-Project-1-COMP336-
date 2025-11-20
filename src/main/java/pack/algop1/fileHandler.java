@@ -1,6 +1,5 @@
 package pack.algop1;
 
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -9,14 +8,14 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class fileHandler {
-    myArrayList<Task> list;
-
-    fileHandler(myArrayList<Task> list) {
-        this.list = list;
+    private final UI ui;
+    private final myArrayList<Task> list;
+    fileHandler(UI ui) {
+        this.ui = ui;
+        list = ui.getTasks();
     }
 
     public void readFile() {
@@ -26,6 +25,7 @@ public class fileHandler {
         try {
             Scanner sc = new Scanner(file);
             int capacity = sc.nextInt();
+            int totalHours = sc.nextInt();
             if (list.isEmpty())
                 list.updateCapacity(capacity);
             else
@@ -54,6 +54,7 @@ public class fileHandler {
 
                 list.add(task);
             }
+            ui.setTotalHours(totalHours);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -73,7 +74,8 @@ public class fileHandler {
 
         try (FileOutputStream out = new FileOutputStream(file)) {
             StringBuilder sb = new StringBuilder();
-            sb.append(list.size()).append("\n");
+            sb.append(list.size()+1).append("\n");
+            sb.append(ui.getTotalHours()).append("\n");
             for (int i = 0; i < list.size(); i++) {
                 Task t = list.get(i);
                 sb.append(t.getName()).append(",")

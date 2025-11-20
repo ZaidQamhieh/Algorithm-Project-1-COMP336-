@@ -41,9 +41,7 @@ public class Task implements Comparable<Task> {
         if (!(obj instanceof Task)) return false;
 
         Task other = (Task) obj;
-        return time == other.time &&
-                prodctivity == other.prodctivity &&
-                name.equals(other.name);
+        return name.equals(other.name);
     }
 
     @Override
