@@ -14,6 +14,8 @@ public class Driver extends Application {
         scene.setRoot(ui.p());
         stage.setScene(scene);
         stage.setMaximized(true);
+        stage.setTitle("An Intelligent Daily Task Scheduling System");
+        stage.setResizable(false);
         stage.show();
     }
 

@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
 public class Solutions {
@@ -13,78 +14,122 @@ public class Solutions {
     private final myArrayList<Task> tasks;
 
     private final ScrollPane dpScroll = new ScrollPane();
-    private final ListView<String> selectedTasksListDP = new ListView<>();
-    private final ListView<String> selectedTasksListGreedy = new ListView<>();
-    private final TextArea greedyTA = new TextArea();
-    private final TextArea comparisonTA = new TextArea();
+    private final ListView<String>[] selectedTasks = new ListView[2];
+    private final TextArea[] ta = new TextArea[2];
     private final UI ui;
     private final TextField timeTF = new TextField();
     private final Button calculate = new Button("Calculate");
     private final double maxX, maxY;
     private long timeDP, timeGreedy;
+    private final String color1="#3C2E7A", color2="#5644A8",
+            color3="#EFEFFF", color5="#9C9FE6", color6="#D3D4FF";
 
     public Solutions(UI ui) {
         this.ui = ui;
         tasks = ui.getTasks();
-
         maxX = Screen.getPrimary().getVisualBounds().getMaxX();
         maxY = Screen.getPrimary().getVisualBounds().getMaxY();
+        for (int i = 0; i < selectedTasks.length; i++) {
+            selectedTasks[i] = new ListView<>();
+            selectedTasks[i].setPrefHeight(150);
+            selectedTasks[i].setStyle(
+                    "-fx-control-inner-background: " + color2 +
+                            ";-fx-text-fill: " + color3 +
+                            ";-fx-border-color: " + color1 +
+                            ";-fx-border-width: 2;" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-border-radius: 6;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cell-border-color: " + color1
+            );
+        }
+        for (int i = 0; i < ta.length; i++) {
+            ta[i] = new TextArea();
+            ta[i].setEditable(false);
+            ta[i].setWrapText(true);
+            ta[i].setPrefWidth(maxX / 2 - 200);
+            ta[i].setPrefHeight(dpScroll.getMaxHeight());
+            ta[i].setStyle(
+                    "-fx-control-inner-background: " + color2 +
+                            ";-fx-text-fill: " + color3 +
+                            ";-fx-border-color: " + color1 +
+                            ";-fx-border-radius: 6;" +
+                            ";-fx-background-radius: 6;" +
+                            ";-fx-font-size: 15px;" +
+                            "-fx-font-weight: bold;"
+            );
+
+        }
 
         dpScroll.setPrefViewportWidth(maxX / 2);
         dpScroll.setPrefViewportHeight(maxY / 3);
         dpScroll.setFitToHeight(false);
         dpScroll.setFitToWidth(false);
-        dpScroll.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
-        dpScroll.setMaxHeight(Screen.getPrimary().getVisualBounds().getHeight() / 5);
-
-        selectedTasksListDP.setPrefHeight(150);
-        selectedTasksListGreedy.setPrefHeight(150);
-
-        greedyTA.setEditable(false);
-        greedyTA.setWrapText(true);
-        greedyTA.setPrefWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
-        greedyTA.setPrefHeight(dpScroll.getMaxHeight());
-
-        comparisonTA.setEditable(false);
-        comparisonTA.setWrapText(true);
-        comparisonTA.setPrefHeight(145);
-        comparisonTA.setPrefWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
+        dpScroll.setMaxWidth(maxX / 2 - 200);
+        dpScroll.setMaxHeight(maxY / 5);
+        dpScroll.setStyle(
+                "-fx-background: " + color2 + ";" +
+                        "-fx-background-color: " + color2 + ";" +
+                        "-fx-border-color: " + color1 + ";" +
+                        "-fx-border-radius: 6;" +
+                        "-fx-background-radius: 6;"
+        );
     }
 
     public Pane p() {
         Label[] labels = new Label[]{
                 new Label("Total Hours:"), new Label("Dynamic Solution"), new Label("Chosen Tasks"),
                 new Label("Greedy Solution"), new Label("Chosen Tasks"),
-                new Label("DP vs Greedy Comparison"), new Label("Dynamic Programming vs Greedy"), new Label()};
+                new Label("Comparison"), new Label("DP vs Greedy"), new Label("DP Relation:"), new Label()};
 
         Line[] lines = new Line[]{
-                new Line(0, maxY / 1.5, maxX, maxY / 1.5),
+                new Line(50, maxY / 1.5, maxX - 50, maxY / 1.5),
                 new Line(maxX / 2, maxY / 12, maxX / 2, maxY / 1.5),
-                new Line(0, maxY / 12, maxX, maxY / 12)};
+                new Line(50, maxY / 12, maxX - 50, maxY / 12),
+                new Line(50, maxY / 1.5, 50, maxY / 12),
+                new Line(maxX - 50, maxY / 1.5, maxX - 50, maxY / 12),};
 
+        for (int i = 0; i < lines.length; i++) {
+            lines[i].setStrokeWidth(5);
+        }
         HBox hb = new HBox(20, labels[0], timeTF, calculate);
 
-        VBox subDpGroup = new VBox(40, dpScroll, selectedTasksListDP);
-        VBox dpGroup = new VBox(5, subDpGroup, labels[7]);
-        VBox greedyGroup = new VBox(40, greedyTA, selectedTasksListGreedy);
+        VBox subDpGroup = new VBox(40, dpScroll, selectedTasks[0]);
+        VBox dpGroup = new VBox(10, subDpGroup, labels[7], labels[8]);
+        VBox greedyGroup = new VBox(40, ta[0], selectedTasks[1]);
 
         setXY(dpGroup, maxX, 7, maxX / 24, -100);
         setXY(greedyGroup, 2, 7, maxX / 20, 0);
-        setXY(comparisonTA, 3, 1, -70, -(maxY / 2) + 250);
-        setXY(hb, 2, maxY, -155, 60);
+        setXY(ta[1], 3, 1, -70, -(maxY / 2) + 250);
+        setXY(hb, 2, maxY, -155, 50);
 
         labelSettings(labels);
+        controlSettings(calculate, 70, 30, false);
+        controlSettings(timeTF, 120, 30, false);
         hb.setAlignment(Pos.CENTER);
         dpGroup.setPadding(new Insets(100, 10, 10, 10));
 
         calculate.setOnAction(e -> calculate());
 
-        Pane p = new Pane(hb, dpGroup, greedyGroup, comparisonTA);
+        Rectangle[] r = new Rectangle[2];
+        for (int i = 0; i < r.length; i++) {
+            r[i] = new Rectangle();
+        }
+        r[0].setStyle("-fx-fill: " + color5);
+        r[0].setHeight(maxY);
+        r[0].setWidth(maxX);
+        r[1].setStyle("-fx-fill: " + color6);
+        r[1].setHeight(maxY / 1.715);
+        r[1].setWidth(maxX - 100);
+        setXY(r[1], maxX, 12, 50, 0);
+
+        Pane p = new Pane();
+        p.getChildren().addAll(r);
         p.getChildren().addAll(lines);
+        p.getChildren().addAll(hb, dpGroup, greedyGroup, ta[1]);
 
-        for (int i = 1; i < labels.length - 1; i++)
+        for (int i = 1; i < labels.length - 2; i++)
             p.getChildren().add(labels[i]);
-
         return p;
     }
 
@@ -96,11 +141,27 @@ public class Solutions {
         setXY(l[2], maxX, 3, (maxX / 5) + 30, 20);
         setXY(l[3], 2, 10, (maxX / 5) + 30, 20);
         setXY(l[4], 2, 3, (maxX / 5) + 30, 20);
-        setXY(l[5], 2, 1, -100, -(maxY / 2) + 200);
-        setXY(l[6], 2, maxY, -160, 5);
+        setXY(l[5], 2, 1, -50, -(maxY / 2) + 200);
+        setXY(l[6], 2, maxY, -50, 5);
         l[6].setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
-        l[7].setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        l[7].setText("DP Relation:\nif (Task Time ≤ j):\n dp[i][j] = max( Task Productivity + dp[i−1][j−Task Time] , dp[i−1][j] )\n\nelse:\ndp[i][j] = dp[i−1][j]");
+        l[8].setStyle("-fx-font-size: 16px;");
+        l[8].setText("if (Task Time ≤ j):\n dp[i][j] = max( Task Productivity + dp[i−1][j−Task Time] , dp[i−1][j] )\nelse:\ndp[i][j] = dp[i−1][j]");
+    }
+
+    private void controlSettings(Control b, int width, int height, boolean bottom) {
+        b.setPrefWidth(width);
+        b.setPrefHeight(height);
+        b.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color:" + color2 +
+                        ";-fx-border-color: white;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;"
+        );
+        if (b instanceof Button button) {
+            if (bottom)
+                button.setContentDisplay(ContentDisplay.TOP);
+        }
     }
 
     private void calculate() {
@@ -109,7 +170,8 @@ public class Solutions {
             totalHours = Integer.parseInt(timeTF.getText());
             ui.setTotalHours(totalHours);
         } catch (Exception ex) {
-            totalHours = 0;
+            new Alert(Alert.AlertType.ERROR, "Total Hours Accepts Numbers Only").show();
+            return;
         }
 
         int[][] dp = dpSolution(totalHours);
@@ -120,11 +182,77 @@ public class Solutions {
         compareDPGreedy(dpValue, greedyValue);
     }
 
+    private void showDP(int[][] dp) {
+        GridPane grid = new GridPane();
+        grid.setHgap(0);
+        grid.setVgap(0);
+
+        int rows = dp.length;
+        int cols = dp[0].length;
+
+        int width = 80;
+        int height = 30;
+
+        Label empty = new Label("");
+        empty.setPrefSize(2 * width, height);
+        empty.setStyle("-fx-border-color: black; -fx-background-color:" + color2 + ";-fx-alignment: center; -fx-padding: 5;");
+        grid.add(empty, 0, 0);
+
+        Label noTask = new Label("No Task");
+        noTask.setPrefSize(2 * width, height);
+        noTask.setStyle("-fx-text-fill: white;-fx-border-color: black; -fx-alignment: center; -fx-background-color:" + color1 + ";-fx-font-weight: bold;");
+        grid.add(noTask, 0, 1);
+
+        for (int i = 0; i < cols; i++) {
+            Label l = new Label(i + "h");
+            l.setPrefSize(width, height);
+            l.setStyle("-fx-text-fill: white;-fx-border-color: black; -fx-alignment: center; -fx-background-color:" + color2 + ";-fx-font-weight: bold;");
+            grid.add(l, i + 1, 0);
+        }
+
+        for (int i = 1; i <= tasks.size(); i++) {
+            Label l = new Label(tasks.get(i - 1).getName());
+            l.setPrefSize(2 * width, height);
+            l.setStyle("-fx-text-fill: white;-fx-border-color: black; -fx-alignment: center; -fx-background-color:" + color1 + ";-fx-font-weight: bold;");
+            grid.add(l, 0, i + 1);
+        }
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                Label l = new Label(String.valueOf(dp[i][j]));
+                l.setPrefSize(width, height);
+                l.setStyle("-fx-border-color: gray;-fx-text-fill: black; -fx-alignment: center; -fx-background-color:" + color3);
+                grid.add(l, j + 1, i + 1);
+            }
+        }
+        grid.setStyle(
+                "-fx-background-color: " + color2 + ";"
+        );
+        dpScroll.setContent(grid);
+    }
+
+
+    private void showSelectedTasksDP(int[][] dp, int totalHours) {
+        selectedTasks[0].getItems().clear();
+
+        int i = tasks.size();
+        int j = totalHours;
+
+        while (i > 0 && j > 0) {
+            if (dp[i][j] != dp[i - 1][j]) {
+                Task t = tasks.get(i - 1);
+                selectedTasks[0].getItems().add(t.toString());
+                j -= t.getTime();
+            }
+            i--;
+        }
+    }
+
     private int[][] dpSolution(int totalHours) {
         if (totalHours <= 0)
             throw new IllegalArgumentException("Total Hours Must Be Greater Than 0");
 
-        long n1 = System.nanoTime();
+        long start = System.nanoTime();
         int n = tasks.size();
         int[][] dp = new int[n + 1][totalHours + 1];
 
@@ -139,60 +267,16 @@ public class Solutions {
                     dp[i][j] = dp[i - 1][j];
             }
         }
-        long n2 = System.nanoTime();
-        timeDP = n2 - n1;
+        long end = System.nanoTime();
+        timeDP = end - start;
         return dp;
     }
 
-    private void showSelectedTasksDP(int[][] dp, int totalHours) {
-        selectedTasksListDP.getItems().clear();
-
-        int i = tasks.size();
-        int j = totalHours;
-
-        while (i > 0 && j > 0) {
-            if (dp[i][j] != dp[i - 1][j]) {
-                Task t = tasks.get(i - 1);
-                selectedTasksListDP.getItems().add(t.toString());
-                j -= t.getTime();
-            }
-            i--;
-        }
-    }
-
-    private void showDP(int[][] dp) {
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(8);
-
-        int rows = dp.length;
-        int cols = dp[0].length;
-
-        grid.add(new Label(""), 0, 0);
-        for (int w = 0; w < cols; w++) {
-            grid.add(new Label(w + "h"), w + 1, 0);
-        }
-
-        grid.add(new Label("No Task"), 0, 1);
-        for (int i = 1; i <= tasks.size(); i++) {
-            grid.add(new Label(tasks.get(i - 1).getName()), 0, i + 1);
-        }
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                grid.add(new Label(String.valueOf(dp[i][j])), j + 1, i + 1);
-            }
-        }
-
-        grid.setStyle("-fx-background-color: #bca4ec");
-        dpScroll.setContent(grid);
-    }
-
     private int greedySolution(int totalHours) {
-        myArrayList<String> selectedItems = new myArrayList<>(tasks.size());
-        selectedTasksListGreedy.getItems().clear();
+        myArrayList<String> selectedTasks = new myArrayList<>(tasks.size());
+        this.selectedTasks[1].getItems().clear();
 
-        long n1 = System.nanoTime();
+        long start = System.nanoTime();
         Task[] arr = new Task[tasks.size()];
         for (int i = 0; i < arr.length; i++)
             arr[i] = tasks.get(i);
@@ -213,15 +297,15 @@ public class Solutions {
                 last = i;
                 selected++;
 
-                selectedItems.add(arr[i].toString());
+                selectedTasks.add(arr[i].toString());
             }
         }
 
-        long n2 = System.nanoTime();
-        timeGreedy = n2 - n1;
+        long end = System.nanoTime();
+        timeGreedy = end - start;
 
-        for (int i = 0; i < selectedItems.size(); i++)
-            selectedTasksListGreedy.getItems().add(selectedItems.get(i));
+        for (int i = 0; i < selectedTasks.size(); i++)
+            this.selectedTasks[1].getItems().add(selectedTasks.get(i));
 
         String s0 = "Total Selected Tasks: " + selected;
         String s1;
@@ -233,7 +317,7 @@ public class Solutions {
         String s3 = "Remaining Hours: " + (totalHours - used);
         String s4 = "Total Productivity: " + ans;
 
-        greedyTA.setText(s0 + "\n" + s1 + "\n" + s2 + "\n" + s3 + "\n" + s4);
+        ta[0].setText(s0 + "\n\n" + s1 + "\n\n" + s2 + "\n\n" + s3 + "\n\n" + s4);
 
         return ans;
     }
@@ -261,7 +345,7 @@ public class Solutions {
         else
             sb.append("Both Give The Same Time.\n");
 
-        comparisonTA.setText(sb.toString());
+        ta[1].setText(sb.toString());
     }
 
     private void sortTasks(Task[] a, int l, int r) {

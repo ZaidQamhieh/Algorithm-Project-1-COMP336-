@@ -6,11 +6,11 @@
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #522ef4;
+    -fx-background-color: #3C2E7A;
 }
 
 .table-view .column-header {
-    -fx-background-color: #522ef4;
+    -fx-background-color: #3C2E7A;
     -fx-border-color: white;
     -fx-border-width: 0 1 2 0;
 }
@@ -28,35 +28,35 @@
 }
 
 .table-row-cell {
-    -fx-background-color: #6C63FF;
+    -fx-background-color: #5644A8;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: #5e56e6;
+    -fx-background-color: #3C2E7A;
 }
 
 .table-row-cell:hover {
-    -fx-background-color: #9d98ff;
+    -fx-background-color: #7D6FCC;
 }
 
 .table-row-cell:selected {
-    -fx-background-color: #8b85ff;
+    -fx-background-color: #7D6FCC;
 }
 
 .table-row-cell:selected:hover {
-    -fx-background-color: #b3afff;
+    -fx-background-color: #9088D9;
 }
 
 .table-view .scroll-bar {
-    -fx-background-color: #522ef4;
+    -fx-background-color: #3C2E7A;
 }
 
 .table-view .scroll-bar .thumb {
-    -fx-background-color: #6C63FF;
+    -fx-background-color: #5644A8;
 }
 
 .table-view .scroll-bar .thumb:hover {
-    -fx-background-color: #8b85ff;
+    -fx-background-color: #7D6FCC;
 }
 
 .table-view .placeholder .label {
