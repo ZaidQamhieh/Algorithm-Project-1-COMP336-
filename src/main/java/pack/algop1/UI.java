@@ -208,21 +208,10 @@ public class UI {
 
     private void sortTasks(String type) {
         Task[] tempArr = new Task[tasks.size()];
-
         for (int i = 0; i < tasks.size(); i++)
             tempArr[i] = tasks.get(i);
 
-        for (int i = 0; i < tempArr.length - 1; i++) {
-            for (int j = 0; j < tempArr.length - i - 1; j++) {
-
-                if (compare(tempArr[j], tempArr[j + 1], type) > 0) {
-                    Task temp = tempArr[j];
-                    tempArr[j] = tempArr[j + 1];
-                    tempArr[j + 1] = temp;
-                }
-            }
-        }
-
+        sortTasks(tempArr, 0, tempArr.length - 1, type);
         myArrayList<Task> res = new myArrayList<>(tempArr.length);
         for (Task t : tempArr)
             res.add(t);
@@ -230,15 +219,36 @@ public class UI {
         updateTable(res);
     }
 
+    private void sortTasks(Task[] a, int l, int r, String type) {
+        if (l >= r) return;
+        Task p = a[(l + r) / 2];
+        int i = l, j = r;
+
+        while (i <= j) {
+            while (compare(a[i], p, type) > 0) i++;
+            while (compare(a[j], p, type) < 0) j--;
+            if (i <= j) {
+                Task t = a[i];
+                a[i] = a[j];
+                a[j] = t;
+                i++;
+                j--;
+            }
+        }
+
+        sortTasks(a, l, j, type);
+        sortTasks(a, i, r, type);
+    }
+
     private int compare(Task a, Task b, String type) {
 
         if (type.equals("By Name"))
-            return b.getName().compareToIgnoreCase(a.getName());
+            return a.getName().compareToIgnoreCase(b.getName());
 
         if (type.equals("By Time"))
-            return b.getTime() - a.getTime();
+            return Integer.compare(a.getTime(), b.getTime());
 
-        return b.getProdctivity() - a.getProdctivity();
+        return Integer.compare(a.getProdctivity(), b.getProdctivity());
     }
 
     private void addTask(GridPane gp) {

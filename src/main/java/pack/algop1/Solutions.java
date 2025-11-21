@@ -1,7 +1,11 @@
 package pack.algop1;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Line;
 import javafx.stage.Screen;
 
 public class Solutions {
@@ -13,84 +17,116 @@ public class Solutions {
     private final ListView<String> selectedTasksListGreedy = new ListView<>();
     private final TextArea greedyTA = new TextArea();
     private final TextArea comparisonTA = new TextArea();
-    private final Label maxDP = new Label();
     private final UI ui;
     private final TextField timeTF = new TextField();
     private final Button calculate = new Button("Calculate");
-
+    private final double maxX, maxY;
+    private long timeDP, timeGreedy;
 
     public Solutions(UI ui) {
         this.ui = ui;
         tasks = ui.getTasks();
 
-        dpScroll.setPrefViewportWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2);
-        dpScroll.setPrefViewportHeight(Screen.getPrimary().getVisualBounds().getHeight() / 3);
+        maxX = Screen.getPrimary().getVisualBounds().getMaxX();
+        maxY = Screen.getPrimary().getVisualBounds().getMaxY();
+
+        dpScroll.setPrefViewportWidth(maxX / 2);
+        dpScroll.setPrefViewportHeight(maxY / 3);
         dpScroll.setFitToHeight(false);
         dpScroll.setFitToWidth(false);
+        dpScroll.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
+        dpScroll.setMaxHeight(Screen.getPrimary().getVisualBounds().getHeight() / 5);
 
         selectedTasksListDP.setPrefHeight(150);
         selectedTasksListGreedy.setPrefHeight(150);
 
         greedyTA.setEditable(false);
         greedyTA.setWrapText(true);
+        greedyTA.setPrefWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
+        greedyTA.setPrefHeight(dpScroll.getMaxHeight());
 
         comparisonTA.setEditable(false);
         comparisonTA.setWrapText(true);
-        comparisonTA.setPrefHeight(150);
+        comparisonTA.setPrefHeight(145);
+        comparisonTA.setPrefWidth(Screen.getPrimary().getVisualBounds().getWidth() / 2 - 200);
     }
 
-    public VBox p() {
+    public Pane p() {
+        Label[] labels = new Label[]{
+                new Label("Total Hours:"), new Label("Dynamic Solution"), new Label("Chosen Tasks"),
+                new Label("Greedy Solution"), new Label("Chosen Tasks"),
+                new Label("DP vs Greedy Comparison"), new Label("Dynamic Programming vs Greedy"), new Label()};
 
-        Label totalHoursLabel = new Label("Total Hours");
+        Line[] lines = new Line[]{
+                new Line(0, maxY / 1.5, maxX, maxY / 1.5),
+                new Line(maxX / 2, maxY / 12, maxX / 2, maxY / 1.5),
+                new Line(0, maxY / 12, maxX, maxY / 12)};
 
-        HBox hbox = new HBox(20, totalHoursLabel, timeTF, calculate);
+        HBox hb = new HBox(20, labels[0], timeTF, calculate);
 
-        VBox vbox = new VBox(
-                20,
-                new Label("Dynamic Solution"),
-                hbox,
-                dpScroll,
-                new Label("Chosen Tasks (DP)"),
-                selectedTasksListDP,
-                maxDP,
-                new Label("Greedy Solution"),
-                greedyTA,
-                new Label("Chosen Tasks (Greedy)"),
-                selectedTasksListGreedy,
-                new Label("DP vs Greedy Comparison"),
-                comparisonTA
-        );
+        VBox subDpGroup = new VBox(40, dpScroll, selectedTasksListDP);
+        VBox dpGroup = new VBox(5, subDpGroup, labels[7]);
+        VBox greedyGroup = new VBox(40, greedyTA, selectedTasksListGreedy);
 
-        calculate.setOnAction(e -> {
-            int totalHours;
-            try {
-                totalHours = Integer.parseInt(timeTF.getText());
-                ui.setTotalHours(totalHours);
-            } catch (Exception ex) {
-                totalHours = 0;
-            }
+        setXY(dpGroup, maxX, 7, maxX / 24, -100);
+        setXY(greedyGroup, 2, 7, maxX / 20, 0);
+        setXY(comparisonTA, 3, 1, -70, -(maxY / 2) + 250);
+        setXY(hb, 2, maxY, -155, 60);
 
-            long dpStart = System.nanoTime();
-            int[][] dp = DynamicSolution(totalHours);
-            showDP(dp);
-            showSelectedTasksDP(dp, totalHours);
-            long dpEnd = System.nanoTime();
+        labelSettings(labels);
+        hb.setAlignment(Pos.CENTER);
+        dpGroup.setPadding(new Insets(100, 10, 10, 10));
 
-            long greedyStart = System.nanoTime();
-            int greedyValue = greedySolution(totalHours);
-            long greedyEnd = System.nanoTime();
+        calculate.setOnAction(e -> calculate());
 
-            int dpValue = dp[tasks.size()][totalHours];
+        Pane p = new Pane(hb, dpGroup, greedyGroup, comparisonTA);
+        p.getChildren().addAll(lines);
 
-            compareDPGreedy(dpValue, greedyValue, dpEnd - dpStart, greedyEnd - greedyStart);
-        });
+        for (int i = 1; i < labels.length - 1; i++)
+            p.getChildren().add(labels[i]);
 
-        return vbox;
+        return p;
     }
 
-    private int[][] DynamicSolution(int totalHours) {
+    private void labelSettings(Label[] l) {
+        for (Label label : l)
+            label.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+
+        setXY(l[1], maxX, 10, (maxX / 5) + 30, 20);
+        setXY(l[2], maxX, 3, (maxX / 5) + 30, 20);
+        setXY(l[3], 2, 10, (maxX / 5) + 30, 20);
+        setXY(l[4], 2, 3, (maxX / 5) + 30, 20);
+        setXY(l[5], 2, 1, -100, -(maxY / 2) + 200);
+        setXY(l[6], 2, maxY, -160, 5);
+        l[6].setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+        l[7].setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        l[7].setText("DP Relation:\nif (Task Time ≤ j):\n dp[i][j] = max( Task Productivity + dp[i−1][j−Task Time] , dp[i−1][j] )\n\nelse:\ndp[i][j] = dp[i−1][j]");
+    }
+
+    private void calculate() {
+        int totalHours;
+        try {
+            totalHours = Integer.parseInt(timeTF.getText());
+            ui.setTotalHours(totalHours);
+        } catch (Exception ex) {
+            totalHours = 0;
+        }
+
+        int[][] dp = dpSolution(totalHours);
+        showDP(dp);
+        showSelectedTasksDP(dp, totalHours);
+        int greedyValue = greedySolution(totalHours);
+        int dpValue = dp[tasks.size()][totalHours];
+        compareDPGreedy(dpValue, greedyValue);
+    }
+
+    private int[][] dpSolution(int totalHours) {
+        if (totalHours <= 0)
+            throw new IllegalArgumentException("Total Hours Must Be Greater Than 0");
+
+        long n1 = System.nanoTime();
         int n = tasks.size();
-        int[][] dp = new int[n + 1][Math.max(1, totalHours + 1)];
+        int[][] dp = new int[n + 1][totalHours + 1];
 
         for (int i = 1; i <= n; i++) {
             int time = tasks.get(i - 1).getTime();
@@ -103,8 +139,8 @@ public class Solutions {
                     dp[i][j] = dp[i - 1][j];
             }
         }
-
-        maxDP.setText("Max Productivity (DP) = " + dp[n][totalHours]);
+        long n2 = System.nanoTime();
+        timeDP = n2 - n1;
         return dp;
     }
 
@@ -125,7 +161,6 @@ public class Solutions {
     }
 
     private void showDP(int[][] dp) {
-
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(8);
@@ -137,10 +172,12 @@ public class Solutions {
         for (int w = 0; w < cols; w++) {
             grid.add(new Label(w + "h"), w + 1, 0);
         }
+
         grid.add(new Label("No Task"), 0, 1);
         for (int i = 1; i <= tasks.size(); i++) {
             grid.add(new Label(tasks.get(i - 1).getName()), 0, i + 1);
         }
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 grid.add(new Label(String.valueOf(dp[i][j])), j + 1, i + 1);
@@ -152,14 +189,15 @@ public class Solutions {
     }
 
     private int greedySolution(int totalHours) {
-
+        myArrayList<String> selectedItems = new myArrayList<>(tasks.size());
         selectedTasksListGreedy.getItems().clear();
 
+        long n1 = System.nanoTime();
         Task[] arr = new Task[tasks.size()];
         for (int i = 0; i < arr.length; i++)
             arr[i] = tasks.get(i);
 
-        quickSort(arr, 0, arr.length - 1);
+        sortTasks(arr, 0, arr.length - 1);
 
         int ans = 0, used = 0, temp = totalHours;
         int last = -1, selected = 0;
@@ -175,13 +213,22 @@ public class Solutions {
                 last = i;
                 selected++;
 
-                selectedTasksListGreedy.getItems().add(arr[i].toString());
+                selectedItems.add(arr[i].toString());
             }
         }
 
+        long n2 = System.nanoTime();
+        timeGreedy = n2 - n1;
+
+        for (int i = 0; i < selectedItems.size(); i++)
+            selectedTasksListGreedy.getItems().add(selectedItems.get(i));
+
         String s0 = "Total Selected Tasks: " + selected;
-        String s1 = (last == -1 ? "Last Selected Item: None" :
-                "Last Selected Item: " + arr[last].getName());
+        String s1;
+        if (last == -1)
+            s1 = "Last Selected Item: None";
+        else
+            s1 = "Last Selected Item: " + arr[last].getName();
         String s2 = "Hours Used: " + used + "/" + totalHours;
         String s3 = "Remaining Hours: " + (totalHours - used);
         String s4 = "Total Productivity: " + ans;
@@ -191,48 +238,56 @@ public class Solutions {
         return ans;
     }
 
-    private void compareDPGreedy(int dpValue, int greedyValue, long dpTime, long greedyTime) {
-
+    private void compareDPGreedy(int dpValue, int greedyValue) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("DP Productivity: ").append(dpValue).append("\n");
         sb.append("Greedy Productivity: ").append(greedyValue).append("\n\n");
 
-        sb.append("DP Time: ").append(dpTime).append(" ns\n");
-        sb.append("Greedy Time: ").append(greedyTime).append(" ns\n\n");
+        sb.append("DP Time: ").append(timeDP).append(" ns\n");
+        sb.append("Greedy Time: ").append(timeGreedy).append(" ns\n\n");
 
-        if (dpValue > greedyValue) {
+        if (dpValue > greedyValue)
             sb.append("DP Gives A Better Solution in Terms Of Productivity.\n");
-        } else if (greedyValue > dpValue) {
+        else if (greedyValue > dpValue)
             sb.append("Greedy Gives A Better Solution in Terms Of  Productivity.\n");
-        } else {
+        else
             sb.append("Both Give The Same Productivity.\n");
-        }
+
+        if (timeDP > timeGreedy)
+            sb.append("Greedy Gives A Better Solution in Terms Of Time.\n");
+        else if (timeGreedy > timeDP)
+            sb.append("DP Gives A Better Solution in Terms Of Time.\n");
+        else
+            sb.append("Both Give The Same Time.\n");
 
         comparisonTA.setText(sb.toString());
     }
 
-    public <T extends Comparable<T>> void quickSort(T[] a, int l, int r) {
+    private void sortTasks(Task[] a, int l, int r) {
         if (l >= r) return;
-
-        T pivot = a[(l + r) / 2];
+        Task p = a[(l + r) / 2];
         int i = l, j = r;
 
         while (i <= j) {
-            while (a[i].compareTo(pivot) < 0) i++;
-            while (a[j].compareTo(pivot) > 0) j--;
-
+            while (a[i].getProdctivity() > p.getProdctivity()) i++;
+            while (a[j].getProdctivity() < p.getProdctivity()) j--;
             if (i <= j) {
-                T temp = a[i];
+                Task t = a[i];
                 a[i] = a[j];
-                a[j] = temp;
+                a[j] = t;
                 i++;
                 j--;
             }
         }
 
-        quickSort(a, l, j);
-        quickSort(a, i, r);
+        sortTasks(a, l, j);
+        sortTasks(a, i, r);
+    }
+
+    public void setXY(Node n, double x, double y, double offsetX, double offsetY) {
+        n.setLayoutX((maxX / x) + offsetX);
+        n.setLayoutY((maxY / y) + offsetY);
     }
 
     public void updateTime(int time) {
