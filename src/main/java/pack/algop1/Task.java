@@ -2,10 +2,10 @@ package pack.algop1;
 
 public class Task implements Comparable<Task> {
     private String name;
-    private int time;
+    private float time;
     private int prodctivity;
 
-    public Task(String name, int time, int prodctivity) {
+    public Task(String name, float time, int prodctivity) {
         this.name = name;
         this.time = time;
         this.prodctivity = prodctivity;
@@ -19,11 +19,11 @@ public class Task implements Comparable<Task> {
         this.name = name;
     }
 
-    public int getTime() {
+    public float getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    public void setTime(float time) {
         this.time = time;
     }
 

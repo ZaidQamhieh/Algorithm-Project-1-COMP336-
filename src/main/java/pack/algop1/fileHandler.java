@@ -25,7 +25,7 @@ public class fileHandler {
         try {
             Scanner sc = new Scanner(file);
             int capacity = sc.nextInt();
-            int totalHours = sc.nextInt();
+            float totalHours = sc.nextFloat();
             if (list.isEmpty())
                 list.updateCapacity(capacity);
             else
@@ -33,11 +33,11 @@ public class fileHandler {
             while (sc.hasNextLine()) {
                 String[] parts = sc.nextLine().trim().split(",");
                 String name;
-                int time;
+                float time;
                 int productivity;
                 try {
                     name = parts[0];
-                    time = Integer.parseInt(parts[1]);
+                    time = Float.parseFloat(parts[1]);
                     productivity = Integer.parseInt(parts[2]);
                 } catch (Exception ex) {
                     continue;

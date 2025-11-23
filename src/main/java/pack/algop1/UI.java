@@ -15,10 +15,10 @@ import javafx.stage.Screen;
 public class UI {
     private final TableView<Task> tv;
     private final myArrayList<Task> tasks;
-    private final Solutions solutions;
+    private final solutionsUI solutionsUI;
     private final TextField[] tf = new TextField[3];
     private final double maxX, maxY;
-    private int totalHours;
+    private float totalHours;
 
     private final String color1 = "#3C2E7A", color2 = "#5644A8", color3 = "#D3D4FF";
 
@@ -26,7 +26,7 @@ public class UI {
     public UI() {
         tasks = new myArrayList<>(5);
         tv = new TableView<>();
-        solutions = new Solutions(this);
+        solutionsUI = new solutionsUI(this);
         maxX = Screen.getPrimary().getVisualBounds().getMaxX();
         maxY = Screen.getPrimary().getVisualBounds().getMaxY();
         for (int i = 0; i < tf.length; i++)
@@ -55,7 +55,9 @@ public class UI {
 
         tp.getTabs().addAll(tab);
         tab[0].setContent(viewTasks());
-        tab[1].setContent(solutions.p());
+        tab[1].setContent(solutionsUI.p());
+
+        tab[1].setOnSelectionChanged(e-> solutionsUI.runCalculating());
         return tp;
     }
 
@@ -149,7 +151,7 @@ public class UI {
     private void readFile() {
         new fileHandler(this).readFile();
         updateTable(tasks);
-        solutions.updateTime(totalHours);
+        solutionsUI.updateTime(totalHours);
     }
 
     private void rectangleSizing(Rectangle rec) {
@@ -194,7 +196,7 @@ public class UI {
     private TableView<Task> tasksTableSetup() {
         TableColumn<Task, String> c1 = new TableColumn<>("Name");
         c1.setCellValueFactory(new PropertyValueFactory<>("name"));
-        TableColumn<Task, Integer> c2 = new TableColumn<>("Time");
+        TableColumn<Task, Float> c2 = new TableColumn<>("Time");
         c2.setCellValueFactory(new PropertyValueFactory<>("time"));
         TableColumn<Task, Integer> c3 = new TableColumn<>("Productivity");
         c3.setCellValueFactory(new PropertyValueFactory<>("prodctivity"));
@@ -268,7 +270,7 @@ public class UI {
         if (type.equals("By Name"))
             return a.getName().compareToIgnoreCase(b.getName());
         if (type.equals("By Time"))
-            return Integer.compare(a.getTime(), b.getTime());
+            return Float.compare(a.getTime(), b.getTime());
         return Integer.compare(a.getProdctivity(), b.getProdctivity());
     }
 
@@ -284,7 +286,7 @@ public class UI {
         confirm.setOnAction(e -> {
             if (inputValidation(tf)) {
                 Task task = new Task(tf[0].getText(),
-                        Integer.parseInt(tf[1].getText()),
+                        Float.parseFloat(tf[1].getText()),
                         Integer.parseInt(tf[2].getText()));
 
                 if (tasks.contains(task)) {
@@ -297,6 +299,7 @@ public class UI {
                 tasks.add(task);
                 updateTable(tasks);
             }
+            for (TextField x : tf) x.clear();
             gp.setVisible(false);
         });
 
@@ -329,16 +332,15 @@ public class UI {
         b.setOnAction(e -> {
             if (inputValidation(tf)) {
                 String name = tf[0].getText().trim();
-                int time = Integer.parseInt(tf[1].getText().trim());
+                float time = Float.parseFloat(tf[1].getText().trim());
                 int prod = Integer.parseInt(tf[2].getText().trim());
 
-                if (tasks.contains(new Task(name, time, prod))) {
+                if (!name.equalsIgnoreCase(task.getName()) &&tasks.contains(new Task(name, time, prod))) {
                     showError("Duplicate Found", "The Task Already Exists",
                             "The Edits Would Create A Duplicate Task",
                             Alert.AlertType.WARNING);
                     return;
                 }
-
                 task.setName(name);
                 task.setTime(time);
                 task.setProdctivity(prod);
@@ -404,7 +406,7 @@ public class UI {
 
         try {
             String name = tf[0].getText().trim();
-            int time = Integer.parseInt(tf[1].getText().trim());
+            float time = Float.parseFloat(tf[1].getText().trim());
             int prod = Integer.parseInt(tf[2].getText().trim());
 
             if (name.isEmpty()) {
@@ -426,8 +428,8 @@ public class UI {
                 return false;
             }
         } catch (Exception e) {
-            showError("Invalid Format", "Try Again",
-                    "Use Only Integers For Time/Productivity",
+            showError("Invalid Format", "Try Again", "Time Must Be Float (0.5 Steps) " +
+                            "| Productivity Must Be Integer",
                     Alert.AlertType.ERROR);
             return false;
         }
@@ -450,11 +452,11 @@ public class UI {
         a.showAndWait();
     }
 
-    public int getTotalHours() {
+    public float getTotalHours() {
         return totalHours;
     }
 
-    public void setTotalHours(int totalHours) {
+    public void setTotalHours(float totalHours) {
         this.totalHours = totalHours;
     }
 
