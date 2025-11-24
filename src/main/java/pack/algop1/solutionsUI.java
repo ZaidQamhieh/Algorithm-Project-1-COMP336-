@@ -104,8 +104,8 @@ public class solutionsUI {
         setXY(hb, 2, maxY, -155, 50);
 
         labelSettings(labels);
-        controlSettings(calculate, 70, 30, false);
-        controlSettings(timeTF, 120, 30, false);
+        controlSettings(calculate, 70);
+        controlSettings(timeTF, 120);
         hb.setAlignment(Pos.CENTER);
         dpGroup.setPadding(new Insets(100, 10, 10, 10));
 
@@ -148,9 +148,9 @@ public class solutionsUI {
         l[8].setText("if (Task Time ≤ j):\n dp[i][j] = max( Task Productivity + dp[i−1][j−Task Time] , dp[i−1][j] )\nelse:\ndp[i][j] = dp[i−1][j]");
     }
 
-    private void controlSettings(Control b, int width, int height, boolean bottom) {
+    private void controlSettings(Control b, int width) {
         b.setPrefWidth(width);
-        b.setPrefHeight(height);
+        b.setPrefHeight(30);
         b.setStyle(
                 "-fx-text-fill: white;" +
                         "-fx-background-color:" + color2 +
@@ -158,10 +158,6 @@ public class solutionsUI {
                         "-fx-border-radius: 8;" +
                         "-fx-background-radius: 8;"
         );
-        if (b instanceof Button button) {
-            if (bottom)
-                button.setContentDisplay(ContentDisplay.TOP);
-        }
     }
 
     private void calculate() {
