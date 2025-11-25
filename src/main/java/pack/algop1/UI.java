@@ -282,6 +282,7 @@ public class UI {
 
         Label l = (Label) gp.getChildren().getFirst();
         l.setText("Adding Task");
+        for (TextField x : tf) x.clear();
 
         confirm.setOnAction(e -> {
             if (inputValidation(tf)) {
@@ -331,6 +332,14 @@ public class UI {
 
         b.setOnAction(e -> {
             if (inputValidation(tf)) {
+
+                if (!tasks.contains(task)) {
+                    showError("Missing Task", "Try Again",
+                            "The Task Seems To Be Deleted Or Missing",
+                            Alert.AlertType.WARNING);
+                    return;
+                }
+
                 String name = tf[0].getText().trim();
                 float time = Float.parseFloat(tf[1].getText().trim());
                 int prod = Integer.parseInt(tf[2].getText().trim());

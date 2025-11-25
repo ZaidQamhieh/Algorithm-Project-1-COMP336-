@@ -331,13 +331,13 @@ public class solutionsUI {
         sb.append("DP Time: ").append(timeDP).append(" ns\n");
         sb.append("Greedy Time: ").append(timeGreedy).append(" ns\n\n");
 
-        if (dpValue > greedyValue) sb.append("DP Gives A Better Productivity.\n");
-        else if (greedyValue > dpValue) sb.append("Greedy Gives A Better Productivity.\n");
-        else sb.append("Both Give The Same Productivity.\n");
+        if (dpValue > greedyValue) sb.append("DP Gives A Better Productivity\n");
+        else if (greedyValue > dpValue) sb.append("Greedy Gives A Better Productivity\n");
+        else sb.append("Both Give The Same Productivity\n");
 
-        if (timeDP > timeGreedy) sb.append("Greedy Is Faster.\n");
-        else if (timeGreedy > timeDP) sb.append("DP Is Faster.\n");
-        else sb.append("Both Give The Same Time.\n");
+        if (timeDP > timeGreedy) sb.append("Greedy Is Faster\n");
+        else if (timeGreedy > timeDP) sb.append("DP Is Faster\n");
+        else sb.append("Both Give The Same Time\n");
 
         sb.append("\nDP Advantages:\n");
         sb.append("*Always optimal\n");
@@ -353,7 +353,6 @@ public class solutionsUI {
 
         sb.append("\nGreedy Disadvantages:\n");
         sb.append("*Not Always Optimal\n");
-        sb.append("*Performance Depends On Sorting Method ( In My Solution At Least )\n");
 
         ta[1].setText(sb.toString());
     }
