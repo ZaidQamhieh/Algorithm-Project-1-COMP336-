@@ -325,27 +325,35 @@ public class solutionsUI {
     private void compareDPGreedy(int dpValue, int greedyValue) {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("Productivity Results:\n");
         sb.append("DP Productivity: ").append(dpValue).append("\n");
         sb.append("Greedy Productivity: ").append(greedyValue).append("\n\n");
-
-        sb.append("DP Time: ").append(timeDP).append(" ns\n");
-        sb.append("Greedy Time: ").append(timeGreedy).append(" ns\n\n");
 
         if (dpValue > greedyValue) sb.append("DP Gives A Better Productivity\n");
         else if (greedyValue > dpValue) sb.append("Greedy Gives A Better Productivity\n");
         else sb.append("Both Give The Same Productivity\n");
 
+        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
+
+        sb.append("Time Results:\n");
+        sb.append("DP Time: ").append(timeDP).append(" ns\n");
+        sb.append("Greedy Time: ").append(timeGreedy).append(" ns\n\n");
+
         if (timeDP > timeGreedy) sb.append("Greedy Is Faster\n");
         else if (timeGreedy > timeDP) sb.append("DP Is Faster\n");
         else sb.append("Both Give The Same Time\n");
+
+        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
 
         sb.append("\nDP Advantages:\n");
         sb.append("*Always optimal\n");
         sb.append("*Checks All Combinations\n");
 
         sb.append("\nDP Disadvantages:\n");
-        sb.append("*Slower\n");
+        sb.append("*Slow\n");
         sb.append("*More Memory\n");
+
+        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
 
         sb.append("\nGreedy Advantages:\n");
         sb.append("*Very fast\n");

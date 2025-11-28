@@ -84,14 +84,7 @@ public class UI {
         labelSettings(searchLabel);
         TextField searchField = new TextField();
 
-        Label sortLabel = new Label("Sort:");
-        labelSettings(sortLabel);
-        ComboBox<String> sortCB =
-                new ComboBox<>(FXCollections.observableArrayList("By Name", "By Time", "By Productivity"));
-        sortCB.setOnAction(e -> sortTasks(sortCB.getValue()));
-
         HBox hb1 = new HBox(10, searchLabel, searchField);
-        HBox hb2 = new HBox(10, sortLabel, sortCB);
         GridPane gp = addEditSection();
 
         Button confirm = (Button) gp.getChildren().getLast();
@@ -103,11 +96,10 @@ public class UI {
         rectangleSizing(rec);
 
         hb1.setAlignment(Pos.CENTER_LEFT);
-        hb2.setAlignment(Pos.CENTER_LEFT);
 
         controlSettings(taskActions, 130, 130, 5.8, 8, 180, true);
         controlSettings(fileActions, 130, 40, 1.41, 8, 50, false);
-        controlSettings(new Control[]{tf[0], tf[1], tf[2], searchField, sortCB},
+        controlSettings(new Control[]{tf[0], tf[1], tf[2], searchField},
                 130, 40, 0, 0, 0, false);
 
         setSizeImages(60, 60, new ImageView[]{mv[0], mv[1], mv[2]});
@@ -122,11 +114,10 @@ public class UI {
 
         setXY(p, 160, 7.8, 0, 0);
         setXY(hb1, 4, 10.8, 0, -20);
-        setXY(hb2, 1.64, 10.8, 0, -20);
         setXY(tv, 4, 8, 0, 0);
         setXY(gp, 1.41, 3.5, 0, 0);
 
-        p.getChildren().addAll(rec, tasksTableSetup(), hb1, hb2, gp);
+        p.getChildren().addAll(rec, tasksTableSetup(), hb1, gp);
         p.getChildren().addAll(taskActions);
         p.getChildren().addAll(fileActions);
 
@@ -229,49 +220,6 @@ public class UI {
             data.add(t);
 
         tv.setItems(data);
-    }
-
-    private void sortTasks(String type) {
-        Task[] tempArr = new Task[tasks.size()];
-        for (int i = 0; i < tasks.size(); i++)
-            tempArr[i] = tasks.get(i);
-
-        sortTasks(tempArr, 0, tempArr.length - 1, type);
-
-        myArrayList<Task> res = new myArrayList<>(tempArr.length);
-        for (Task t : tempArr)
-            res.add(t);
-
-        updateTable(res);
-    }
-
-    private void sortTasks(Task[] a, int l, int r, String type) {
-        if (l >= r) return;
-        Task p = a[(l + r) / 2];
-        int i = l, j = r;
-
-        while (i <= j) {
-            while (compare(a[i], p, type) > 0) i++;
-            while (compare(a[j], p, type) < 0) j--;
-            if (i <= j) {
-                Task t = a[i];
-                a[i] = a[j];
-                a[j] = t;
-                i++;
-                j--;
-            }
-        }
-
-        sortTasks(a, l, j, type);
-        sortTasks(a, i, r, type);
-    }
-
-    private int compare(Task a, Task b, String type) {
-        if (type.equals("By Name"))
-            return a.getName().compareToIgnoreCase(b.getName());
-        if (type.equals("By Time"))
-            return Float.compare(a.getTime(), b.getTime());
-        return Integer.compare(a.getProdctivity(), b.getProdctivity());
     }
 
     private void addTask(GridPane gp) {
