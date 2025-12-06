@@ -9,6 +9,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
+import java.util.ArrayList;
+
 public class solutionsUI {
 
     private final UI ui;
@@ -273,54 +275,53 @@ public class solutionsUI {
     }
 
     private int greedySolution(float totalHoursF) {
-        myArrayList<String> selectedTasks = new myArrayList<>(tasks.size());
+
         this.selectedTasks[1].getItems().clear();
 
         long start = System.nanoTime();
+
         Task[] arr = new Task[tasks.size()];
-        for (int i = 0; i < arr.length; i++)
+        for (int i = 0; i < tasks.size(); i++)
             arr[i] = tasks.get(i);
 
         sortTasks(arr, 0, arr.length - 1);
 
-        int ans = 0, used = 0, temp = Math.round(totalHoursF * 2);
-        int last = -1, selected = 0;
+        int hours2 = Math.round(totalHoursF * 2);
+        int productivity = 0;
+        int used2 = 0;
+        int last = -1;
 
-        for (int i = 0; i < arr.length; i++) {
-            if (temp == 0) break;
+        myArrayList<String> picked = new myArrayList<>(arr.length);
 
-            int time = Math.round(arr[i].getTime() * 2);
-            if (time <= temp) {
-                ans += arr[i].getProdctivity();
-                temp -= time;
-                used += time;
+        for (int i = 0; i < arr.length && hours2 > 0; i++) {
+
+            int t2 = Math.round(arr[i].getTime() * 2);
+
+            if (t2 <= hours2) {
+                productivity += arr[i].getProdctivity();
+                hours2 -= t2;
+                used2 += t2;
                 last = i;
-                selected++;
-
-                selectedTasks.add(arr[i].toString());
+                picked.add(arr[i].toString());
             }
         }
 
-        long end = System.nanoTime();
-        timeGreedy = end - start;
+        timeGreedy = System.nanoTime() - start;
 
-        for (int i = 0; i < selectedTasks.size(); i++)
-            this.selectedTasks[1].getItems().add(selectedTasks.get(i));
+        for (int i = 0; i < picked.size(); i++)
+            this.selectedTasks[1].getItems().add(picked.get(i));
 
-        String s0 = "Total Selected Tasks: " + selected;
-        String s1;
-        if (last == -1)
-            s1 = "Last Selected Item: None";
-        else
-            s1 = "Last Selected Item: " + arr[last].getName();
-        String s2 = "Hours Used: " + used / 2.0f + "/" + totalHoursF;
-        String s3 = "Remaining Hours: " + ((Math.round(totalHoursF * 2) - used) / 2.0f);
-        String s4 = "Total Productivity: " + ans;
+        ta[0].setText(
+                "Total Selected Tasks: " + picked.size() +
+                        "\n\nLast Selected Item: " + (last == -1 ? "None" : arr[last].getName()) +
+                        "\n\nHours Used: " + (used2 / 2.0f) + " / " + totalHoursF +
+                        "\n\nRemaining Hours: " + ((Math.round(totalHoursF * 2) - used2) / 2.0f) +
+                        "\n\nTotal Productivity: " + productivity
+        );
 
-        ta[0].setText(s0 + "\n\n" + s1 + "\n\n" + s2 + "\n\n" + s3 + "\n\n" + s4);
-
-        return ans;
+        return productivity;
     }
+
 
     private void compareDPGreedy(int dpValue, int greedyValue) {
         StringBuilder sb = new StringBuilder();
