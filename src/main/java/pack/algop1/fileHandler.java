@@ -65,13 +65,6 @@ public class fileHandler {
         File file = fc.showSaveDialog(new Stage());
         if (file == null) return;
 
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Save File");
-        a.setHeaderText("Are You Sure? This Will Overwrite The Existing File?");
-        a.setContentText("Saving To The File Would Cause All Current Data In The File To Be Deleted");
-
-        if (a.showAndWait().get() != ButtonType.OK) return;
-
         try (FileOutputStream out = new FileOutputStream(file)) {
             StringBuilder sb = new StringBuilder();
             sb.append(list.size()+1).append("\n");

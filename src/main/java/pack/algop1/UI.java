@@ -12,6 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
+import java.util.Optional;
+
 public class UI {
     private final TableView<Task> tv;
     private final myArrayList<Task> tasks;
@@ -106,7 +108,20 @@ public class UI {
         setSizeImages(20, 20, new ImageView[]{mv[3], mv[4], mv[5], mv[6]});
 
         fileActions[0].setOnAction(e -> readFile());
-        fileActions[1].setOnAction(e -> new fileHandler(this).saveOnFile());
+        fileActions[1].setOnAction(e -> {
+            if (tasks.isEmpty()) {
+                Alert save = new Alert(Alert.AlertType.CONFIRMATION);
+                save.setTitle("Empty List");
+                save.setHeaderText("Tasks List Is Empty");
+                save.setContentText("Are You Sure You Want To Save An Empty List To The File?");
+                Optional<ButtonType> result = save.showAndWait();
+                if (result.isEmpty() || result.get() != ButtonType.OK) {
+                    return;
+                }
+            }
+
+            new fileHandler(this).saveOnFile();
+        });
         taskActions[0].setOnAction(e -> addTask(gp));
         taskActions[1].setOnAction(e -> editTask(tv.getSelectionModel().getSelectedItem(), gp));
         taskActions[2].setOnAction(e -> deleteTask(tv.getSelectionModel().getSelectedItem()));
@@ -247,9 +262,10 @@ public class UI {
 
                 tasks.add(task);
                 updateTable(tasks);
+                gp.setVisible(false);
+                showAlert("Task Added", null, "Task Successfully Added", Alert.AlertType.INFORMATION);
             }
             for (TextField x : tf) x.clear();
-            gp.setVisible(false);
         });
 
         cancel.setOnAction(e -> {
@@ -302,8 +318,9 @@ public class UI {
                 task.setTime(time);
                 task.setProdctivity(prod);
                 updateTable(tasks);
+                gp.setVisible(false);
+                showAlert("Task Edit", null, "Task Edited Successfully", Alert.AlertType.INFORMATION);
             }
-            gp.setVisible(false);
         });
 
         cancel.setOnAction(e -> {
@@ -341,15 +358,24 @@ public class UI {
     }
 
     private void deleteTask(Task task) {
-        if (task != null) {
-            tasks.remove(task);
-            updateTable(tasks);
-        } else {
+        if (task == null) {
             showAlert("Missing Task", "Try Again",
                     "Please Select A Task From The Table",
                     Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Task");
+        confirm.setHeaderText("Are You Sure You Want To Delete This Task?");
+        confirm.setContentText("This Action Cannot Be Undone");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            tasks.remove(task);
+            updateTable(tasks);
         }
     }
+
 
     private boolean inputValidation(TextField[] tf) {
         for (TextField x : tf) {
