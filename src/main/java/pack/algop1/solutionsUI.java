@@ -9,8 +9,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
-import java.util.ArrayList;
-
 public class solutionsUI {
 
     private final UI ui;
@@ -163,14 +161,23 @@ public class solutionsUI {
     }
 
     private void calculate() {
-        if (timeTF.getText().isEmpty())
+        if (timeTF.getText().isEmpty()) {
+            timeTF.setText("0");
+            calculate.fire();
             return;
+        }
         float totalHours;
         try {
             totalHours = Float.parseFloat(timeTF.getText());
-            if (totalHours <= 0)
+            if (totalHours < 0)
                 return;
 
+            float validStep = (float) (totalHours - Math.floor(totalHours));
+            if (!(validStep == 0.5 || validStep == 0)) {
+                showAlert("Invalid Total Time", "Try Again",
+                        "Total Time Should Move In 0.5 Steps", Alert.AlertType.WARNING);
+                return;
+            }
             ui.setTotalHours(totalHours);
         } catch (Exception ex) {
             new Alert(Alert.AlertType.ERROR, "Total Hours Accepts Numbers Only").show();
@@ -334,7 +341,7 @@ public class solutionsUI {
         else if (greedyValue > dpValue) sb.append("Greedy Gives A Better Productivity\n");
         else sb.append("Both Give The Same Productivity\n");
 
-        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
+        sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
         sb.append("Time Results:\n");
         sb.append("DP Time: ").append(timeDP).append(" ns\n");
@@ -344,7 +351,7 @@ public class solutionsUI {
         else if (timeGreedy > timeDP) sb.append("DP Is Faster\n");
         else sb.append("Both Give The Same Time\n");
 
-        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
+        sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
         sb.append("\nDP Advantages:\n");
         sb.append("*Always optimal\n");
@@ -354,7 +361,7 @@ public class solutionsUI {
         sb.append("*Slow\n");
         sb.append("*More Memory\n");
 
-        sb.append("-".repeat((int) (ta[1].getWidth() /8))).append("\n");
+        sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
         sb.append("\nGreedy Advantages:\n");
         sb.append("*Very fast\n");
@@ -400,5 +407,13 @@ public class solutionsUI {
     public void updateTime(float time) {
         timeTF.setText(String.valueOf(time));
         calculate.fire();
+    }
+
+    private void showAlert(String title, String header, String msg, Alert.AlertType type) {
+        Alert a = new Alert(type);
+        a.setHeaderText(header);
+        a.setContentText(msg);
+        a.setTitle(title);
+        a.showAndWait();
     }
 }

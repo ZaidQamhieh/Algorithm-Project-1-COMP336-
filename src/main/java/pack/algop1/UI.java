@@ -57,7 +57,7 @@ public class UI {
         tab[0].setContent(viewTasks());
         tab[1].setContent(solutionsUI.p());
 
-        tab[1].setOnSelectionChanged(e-> solutionsUI.runCalculating());
+        tab[1].setOnSelectionChanged(e -> solutionsUI.runCalculating());
         return tp;
     }
 
@@ -239,7 +239,7 @@ public class UI {
                         Integer.parseInt(tf[2].getText()));
 
                 if (tasks.contains(task)) {
-                    showError("Duplicate Found", "The Task Already Exists",
+                    showAlert("Duplicate Found", "The Task Already Exists",
                             "Please Make Sure To Add A Non-Duplicated Task",
                             Alert.AlertType.WARNING);
                     return;
@@ -260,7 +260,7 @@ public class UI {
 
     private void editTask(Task task, GridPane gp) {
         if (task == null) {
-            showError("Missing Task", "Try Again",
+            showAlert("Missing Task", "Try Again",
                     "Please Select A Task From The Table",
                     Alert.AlertType.WARNING);
             return;
@@ -282,7 +282,7 @@ public class UI {
             if (inputValidation(tf)) {
 
                 if (!tasks.contains(task)) {
-                    showError("Missing Task", "Try Again",
+                    showAlert("Missing Task", "Try Again",
                             "The Task Seems To Be Deleted Or Missing",
                             Alert.AlertType.WARNING);
                     return;
@@ -292,8 +292,8 @@ public class UI {
                 float time = Float.parseFloat(tf[1].getText().trim());
                 int prod = Integer.parseInt(tf[2].getText().trim());
 
-                if (!name.equalsIgnoreCase(task.getName()) &&tasks.contains(new Task(name, time, prod))) {
-                    showError("Duplicate Found", "The Task Already Exists",
+                if (!name.equalsIgnoreCase(task.getName()) && tasks.contains(new Task(name, time, prod))) {
+                    showAlert("Duplicate Found", "The Task Already Exists",
                             "The Edits Would Create A Duplicate Task",
                             Alert.AlertType.WARNING);
                     return;
@@ -345,7 +345,7 @@ public class UI {
             tasks.remove(task);
             updateTable(tasks);
         } else {
-            showError("Missing Task", "Try Again",
+            showAlert("Missing Task", "Try Again",
                     "Please Select A Task From The Table",
                     Alert.AlertType.WARNING);
         }
@@ -354,7 +354,7 @@ public class UI {
     private boolean inputValidation(TextField[] tf) {
         for (TextField x : tf) {
             if (x.getText().isEmpty()) {
-                showError("Empty Field", "Please Fill The Fields",
+                showAlert("Empty Field", "Please Fill The Fields",
                         "Field Should Not Be Empty!",
                         Alert.AlertType.WARNING);
                 return false;
@@ -367,25 +367,30 @@ public class UI {
             int prod = Integer.parseInt(tf[2].getText().trim());
 
             if (name.isEmpty()) {
-                showError("Invalid Name", "Try Again",
+                showAlert("Invalid Name", "Try Again",
                         "Name Cannot Be Empty",
                         Alert.AlertType.ERROR);
                 return false;
             }
+            float validStep = (float) (time - Math.floor(time));
+            if (!(validStep == 0.5 || validStep == 0)) {
+                showAlert("Invalid Time", "Try Again",
+                        "Time Should Move In 0.5 Steps", Alert.AlertType.WARNING);
+            }
             if (time < 0) {
-                showError("Invalid Time", "Try Again",
+                showAlert("Invalid Time", "Try Again",
                         "Time Cannot Be Negative",
                         Alert.AlertType.ERROR);
                 return false;
             }
             if (prod < 0) {
-                showError("Invalid Productivity", "Try Again",
+                showAlert("Invalid Productivity", "Try Again",
                         "Productivity Cannot Be Negative",
                         Alert.AlertType.ERROR);
                 return false;
             }
         } catch (Exception e) {
-            showError("Invalid Format", "Try Again", "Time Must Be Float (0.5 Steps) " +
+            showAlert("Invalid Format", "Try Again", "Time Must Be Float (0.5 Steps) " +
                             "| Productivity Must Be Integer",
                     Alert.AlertType.ERROR);
             return false;
@@ -401,7 +406,7 @@ public class UI {
         tv.refresh();
     }
 
-    private void showError(String title, String header, String msg, Alert.AlertType type) {
+    private void showAlert(String title, String header, String msg, Alert.AlertType type) {
         Alert a = new Alert(type);
         a.setHeaderText(header);
         a.setContentText(msg);
