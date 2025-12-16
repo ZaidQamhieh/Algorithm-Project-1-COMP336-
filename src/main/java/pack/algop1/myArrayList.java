@@ -12,7 +12,7 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
         this.capacity = capacity;
         index = 0;
     }
-
+    // Resizing Array When it Becomes Full
     private void resize() {
         if (index == capacity) {
             capacity *= 2;
@@ -24,39 +24,38 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
         }
     }
 
+    //Adds to The List
     public void add(T t) {
         resize();
         list[index++] = t;
     }
 
-    public void clear() {
-        for (int i = 0; i < index; i++) list[i] = null;
-        index = 0;
-    }
-
+    // Helper Method To Remove an Element
     public void remove(T obj) {
         int index = search(obj);
         if (index != -1) removeByIndex(index);
     }
 
+    // Removes an Element from The List
     private void removeByIndex(int indexToRemove) {
         if (indexToRemove < 0 || indexToRemove >= index) return;
         for (int i = indexToRemove; i < index - 1; i++) list[i] = list[i + 1];
         list[--index] = null;
     }
-
+    // Searches For a Certain Element
     public int search(T obj) {
         for (int i = 0; i < index; i++)
             if (list[i].equals(obj)) return i;
         return -1;
     }
-
+    // Get an Element By Index
     public T get(int index) {
         if (index < 0 || index >= this.index)
             throw new IndexOutOfBoundsException();
         return list[index];
     }
 
+    // In Case The User Wanted to Forcibly Change The List Length
     public void updateCapacity(int newCap) {
         if (newCap <= list.length) return;
 
@@ -65,20 +64,20 @@ public class myArrayList<T extends Comparable<T>> implements Iterable<T> {
             temp[i] = list[i];
         list = temp;
     }
-
+    // Return if The List Has The Element
     public boolean contains(T obj) {
         return search(obj) != -1;
     }
-
+    // Return if The List is Empty
     public boolean isEmpty() {
         return index == 0;
     }
-
+    // Return The Size of The List
     public int size() {
         return index;
     }
 
-
+    // To Be Able To Iterate Throughout The List via foreach
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {

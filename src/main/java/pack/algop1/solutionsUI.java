@@ -28,8 +28,11 @@ public class solutionsUI {
     public solutionsUI(UI ui) {
         this.ui = ui;
         tasks = ui.getTasks();
+        // Get Screen Resolution
         maxX = Screen.getPrimary().getVisualBounds().getMaxX();
         maxY = Screen.getPrimary().getVisualBounds().getMaxY();
+
+        // Initialize Selected Tasks List Views
         for (int i = 0; i < selectedTasks.length; i++) {
             selectedTasks[i] = new ListView<>();
             selectedTasks[i].setPrefHeight(150);
@@ -44,6 +47,8 @@ public class solutionsUI {
                             "-fx-cell-border-color: " + color1
             );
         }
+
+        // Initialize Text Areas for Algorithm Results
         for (int i = 0; i < ta.length; i++) {
             ta[i] = new TextArea();
             ta[i].setEditable(false);
@@ -109,6 +114,7 @@ public class solutionsUI {
         hb.setAlignment(Pos.CENTER);
         dpGroup.setPadding(new Insets(100, 10, 10, 10));
 
+        // Fire Calculation Action
         calculate.setOnAction(e -> calculate());
 
         Rectangle[] r = new Rectangle[2];
@@ -160,7 +166,9 @@ public class solutionsUI {
         );
     }
 
+    // Main Calculation Method that Runs Both Algorithms
     private void calculate() {
+        // Default to 0 if Input is Empty
         if (timeTF.getText().isEmpty()) {
             timeTF.setText("0");
             calculate.fire();
@@ -168,10 +176,12 @@ public class solutionsUI {
         }
         float totalHours;
         try {
+            // Parse and Validate Total Hours Input
             totalHours = Float.parseFloat(timeTF.getText());
             if (totalHours < 0)
                 return;
 
+            // Validate Time Moves in 0.5 Steps
             float validStep = (float) (totalHours - Math.floor(totalHours));
             if (!(validStep == 0.5 || validStep == 0)) {
                 showAlert("Invalid Total Time", "Try Again",
@@ -187,11 +197,13 @@ public class solutionsUI {
         int[][] dp = dpSolution(totalHours);
         showDP(dp);
         showSelectedTasksDP(dp, totalHours);
+
         int greedyValue = greedySolution(totalHours);
         int dpValue = dp[tasks.size()][Math.round(totalHours * 2)];
         compareDPGreedy(dpValue, greedyValue);
     }
 
+    // Display DP Table in Grid Format
     private void showDP(int[][] dp) {
         GridPane grid = new GridPane();
         grid.setHgap(0);
@@ -203,16 +215,19 @@ public class solutionsUI {
         int width = 80;
         int height = 30;
 
+        // Create Empty Cell
         Label empty = new Label("");
         empty.setPrefSize(2 * width, height);
         empty.setStyle("-fx-border-color: black; -fx-background-color:" + color2 + ";-fx-alignment: center; -fx-padding: 5;");
         grid.add(empty, 0, 0);
 
+        // Create No Task Row Header
         Label noTask = new Label("No Task");
         noTask.setPrefSize(2 * width, height);
         noTask.setStyle("-fx-text-fill: white;-fx-border-color: black; -fx-alignment: center; -fx-background-color:" + color1 + ";-fx-font-weight: bold;");
         grid.add(noTask, 0, 1);
 
+        // Create Column Headers with Hour Values
         for (int i = 0; i < cols; i++) {
             Label l = new Label(i / 2.0f + "h");
             l.setPrefSize(width, height);
@@ -220,6 +235,7 @@ public class solutionsUI {
             grid.add(l, i + 1, 0);
         }
 
+        // Create Row Headers with Task Names
         for (int i = 1; i <= tasks.size(); i++) {
             Label l = new Label(tasks.get(i - 1).getName());
             l.setPrefSize(2 * width, height);
@@ -227,6 +243,7 @@ public class solutionsUI {
             grid.add(l, 0, i + 1);
         }
 
+        // Fill Grid with DP Values
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 Label l = new Label(String.valueOf(dp[i][j]));
@@ -240,6 +257,7 @@ public class solutionsUI {
     }
 
 
+    // Find Selected Tasks
     private void showSelectedTasksDP(int[][] dp, float totalHours) {
         selectedTasks[0].getItems().clear();
 
@@ -247,6 +265,7 @@ public class solutionsUI {
         int j = Math.round(totalHours * 2);
 
         while (i > 0 && j > 0) {
+            // Check if Current Task was Selected
             if (dp[i][j] != dp[i - 1][j]) {
                 Task t = tasks.get(i - 1);
                 selectedTasks[0].getItems().add(t.toString());
@@ -256,73 +275,87 @@ public class solutionsUI {
         }
     }
 
+    // DP 0/1 Knapsack Solution
     private int[][] dpSolution(float totalHoursF) {
         long start = System.nanoTime();
 
         int n = tasks.size();
+        // Convert Hours to Half Hours
         int totalHours = Math.round(totalHoursF * 2);
 
         int[][] dp = new int[n + 1][totalHours + 1];
 
+        // Fill DP Table
         for (int i = 1; i <= n; i++) {
             float timeF = tasks.get(i - 1).getTime();
             int time = Math.round(timeF * 2);
             int prod = tasks.get(i - 1).getProdctivity();
-
             for (int j = 0; j <= totalHours; j++) {
-                if (time <= j)
-                    dp[i][j] = Math.max(prod + dp[i - 1][j - time], dp[i - 1][j]);
-                else
+                if (time <= j) {
+                    int include = prod + dp[i - 1][j - time];
+                    int exclude = dp[i - 1][j];
+                    if (include > exclude)
+                        dp[i][j] = include;
+                    else
+                        dp[i][j] = exclude;
+                } else {
                     dp[i][j] = dp[i - 1][j];
+                }
             }
         }
         long end = System.nanoTime();
+        // Time it Took The DP Solution to Execute
         timeDP = end - start;
         return dp;
     }
 
+    // Greedy Solution
     private int greedySolution(float totalHoursF) {
 
         this.selectedTasks[1].getItems().clear();
 
         long start = System.nanoTime();
 
+        // Copy Tasks to Array for Sorting
         Task[] arr = new Task[tasks.size()];
         for (int i = 0; i < tasks.size(); i++)
             arr[i] = tasks.get(i);
 
+        // Sort Tasks by Productivity to Time Ratio (Descending)
         sortTasks(arr, 0, arr.length - 1);
 
-        int hours2 = Math.round(totalHoursF * 2);
+        // Convert Hours to Half Hours
+        int totalTime = Math.round(totalHoursF * 2);
         int productivity = 0;
-        int used2 = 0;
+        int used = 0;
         int last = -1;
 
         myArrayList<String> picked = new myArrayList<>(arr.length);
 
-        for (int i = 0; i < arr.length && hours2 > 0; i++) {
-
-            int t2 = Math.round(arr[i].getTime() * 2);
-
-            if (t2 <= hours2) {
+        for (int i = 0; i < arr.length && totalTime > 0; i++) {
+            int t = Math.round(arr[i].getTime() * 2);
+            // If Task Fits in Remaining Time Add It
+            if (t <= totalTime) {
                 productivity += arr[i].getProdctivity();
-                hours2 -= t2;
-                used2 += t2;
+                totalTime -= t;
+                used += t;
                 last = i;
                 picked.add(arr[i].toString());
             }
         }
-
+        // Time it Took The Greedy Solution to Execute
         timeGreedy = System.nanoTime() - start;
 
+        // Display Selected Tasks
         for (int i = 0; i < picked.size(); i++)
             this.selectedTasks[1].getItems().add(picked.get(i));
 
+        // Display Greedy Solution Statistics
         ta[0].setText(
                 "Total Selected Tasks: " + picked.size() +
                         "\n\nLast Selected Item: " + (last == -1 ? "None" : arr[last].getName()) +
-                        "\n\nHours Used: " + (used2 / 2.0f) + " / " + totalHoursF +
-                        "\n\nRemaining Hours: " + ((Math.round(totalHoursF * 2) - used2) / 2.0f) +
+                        "\n\nHours Used: " + (used / 2.0f) + " / " + totalHoursF +
+                        "\n\nRemaining Hours: " + ((Math.round(totalHoursF * 2) - used) / 2.0f) +
                         "\n\nTotal Productivity: " + productivity
         );
 
@@ -330,9 +363,11 @@ public class solutionsUI {
     }
 
 
+    // Compare Dynamic Programming and Greedy Solutions
     private void compareDPGreedy(int dpValue, int greedyValue) {
         StringBuilder sb = new StringBuilder();
 
+        // Compare Productivity Results
         sb.append("Productivity Results:\n");
         sb.append("DP Productivity: ").append(dpValue).append("\n");
         sb.append("Greedy Productivity: ").append(greedyValue).append("\n\n");
@@ -343,6 +378,7 @@ public class solutionsUI {
 
         sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
+        // Compare Time Results
         sb.append("Time Results:\n");
         sb.append("DP Time: ").append(timeDP).append(" ns\n");
         sb.append("Greedy Time: ").append(timeGreedy).append(" ns\n\n");
@@ -353,6 +389,7 @@ public class solutionsUI {
 
         sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
+        // List Advantages and Disadvantages of DP
         sb.append("\nDP Advantages:\n");
         sb.append("*Always optimal\n");
         sb.append("*Checks All Combinations\n");
@@ -363,6 +400,7 @@ public class solutionsUI {
 
         sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
+        // List Advantages and Disadvantages of Greedy
         sb.append("\nGreedy Advantages:\n");
         sb.append("*Very fast\n");
         sb.append("*Easy to Implement\n");
@@ -374,8 +412,10 @@ public class solutionsUI {
     }
 
 
+    // Quick Sort to Sort Tasks
     private void sortTasks(Task[] a, int l, int r) {
         if (l >= r) return;
+
         Task p = a[(l + r) / 2];
         int i = l, j = r;
 
@@ -395,20 +435,24 @@ public class solutionsUI {
         sortTasks(a, i, r);
     }
 
+    // Position Node Relative to Screen Size
     private void setXY(Node n, double x, double y, double offsetX, double offsetY) {
         n.setLayoutX((maxX / x) + offsetX);
         n.setLayoutY((maxY / y) + offsetY);
     }
 
+    // To Fire Calculation from Other Classes
     public void runCalculating() {
         calculate.fire();
     }
 
+    // Update Time Field and Recalculate
     public void updateTime(float time) {
         timeTF.setText(String.valueOf(time));
         calculate.fire();
     }
 
+    // Display Alert Dialog with Custom Message
     private void showAlert(String title, String header, String msg, Alert.AlertType type) {
         Alert a = new Alert(type);
         a.setHeaderText(header);
