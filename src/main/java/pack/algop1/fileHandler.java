@@ -1,5 +1,6 @@
 package pack.algop1;
 
+import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -24,9 +25,24 @@ public class fileHandler {
         if (file == null) return;
         try {
             Scanner sc = new Scanner(file);
-            // Reads The Capacity and Total Hours Set at The Start of The File
+
             int capacity = sc.nextInt();
-            float totalHours = sc.nextFloat();
+            if (capacity <= 0) {
+                new Alert(Alert.AlertType.INFORMATION, "Capacity Is 0 Or Less\nNo Tasks To Be Read").showAndWait();
+                return;
+            }
+
+            float totalHours;
+            if (!sc.hasNextFloat()) {
+                new Alert(Alert.AlertType.ERROR, "File Missing Total Time").showAndWait();
+                return;
+            }
+
+            totalHours = sc.nextFloat();
+            if (totalHours < 0) {
+                new Alert(Alert.AlertType.WARNING, "Total Time is Negative\nTotal Time Will Be Set to 0 ").showAndWait();
+                return;
+            }
             if (list.isEmpty())
                 list.updateCapacity(capacity);
             else
@@ -72,7 +88,7 @@ public class fileHandler {
 
         try (FileOutputStream out = new FileOutputStream(file)) {
             StringBuilder sb = new StringBuilder();
-            sb.append(list.size()+1).append("\n");
+            sb.append(list.size() + 1).append("\n");
             sb.append(ui.getTotalHours()).append("\n");
             for (int i = 0; i < list.size(); i++) {
                 Task t = list.get(i);

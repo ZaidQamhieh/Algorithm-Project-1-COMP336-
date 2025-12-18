@@ -5,11 +5,13 @@ public class Task implements Comparable<Task> {
     private String name;
     private float time;
     private int prodctivity;
+    private double ratio;
 
     public Task(String name, float time, int prodctivity) {
         this.name = name;
         this.time = time;
         this.prodctivity = prodctivity;
+        this.ratio = prodctivity / time;
     }
 
     // Getters and Setters
@@ -48,7 +50,7 @@ public class Task implements Comparable<Task> {
     // Compares Two Objects By Their productivity / time Ratio
     @Override
     public int compareTo(Task o) {
-        return Double.compare((double) o.prodctivity / o.time, (double) prodctivity / time);
+        return Double.compare(o.ratio, ratio);
     }
     // To Display Object Information When Printing
     @Override
