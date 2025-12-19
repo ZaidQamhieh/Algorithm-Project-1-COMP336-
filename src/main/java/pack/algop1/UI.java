@@ -65,7 +65,10 @@ public class UI {
         tab[1].setContent(solutionsUI.p());
 
         // Fire Calculations When Switching to Solutions View
-        tab[1].setOnSelectionChanged(e -> solutionsUI.runCalculating());
+        tab[1].setOnSelectionChanged(e -> {
+            if (!tasks.isEmpty())
+                solutionsUI.runCalculating();
+        });
 
         return tp;
     }
@@ -110,7 +113,7 @@ public class UI {
         hb1.setAlignment(Pos.CENTER_LEFT);
 
         // Apply Settings to All Control Elements
-        controlSettings(taskActions, 130, 130, 5.8, 8, 180, true);
+        controlSettings(taskActions, 130, 110, 5.8, 8, 170, true);
         controlSettings(fileActions, 130, 40, 1.41, 8, 50, false);
         controlSettings(new Control[]{tf[0], tf[1], tf[2], searchField},
                 130, 40, 0, 0, 0, false);

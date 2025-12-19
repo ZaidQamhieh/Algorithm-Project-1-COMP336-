@@ -36,7 +36,7 @@ public class solutionsUI {
         // Initialize Selected Tasks List Views
         for (int i = 0; i < selectedTasks.length; i++) {
             selectedTasks[i] = new ListView<>();
-            selectedTasks[i].setPrefHeight(270);
+            selectedTasks[i].setPrefHeight(260);
             selectedTasks[i].setStyle(
                     "-fx-control-inner-background: " + color2 +
                             ";-fx-text-fill: " + color3 +
@@ -147,7 +147,7 @@ public class solutionsUI {
         setXY(l[1], maxX, 10, (maxX / 5) + 30, 20);
         setXY(l[2], maxX, 5, (maxX / 5) + 30, 35);
         setXY(l[3], 2, 10, (maxX / 5) + 30, 20);
-        setXY(l[4], 2, 3, (maxX / 5) + 30, 20);
+        setXY(l[4], 2, 3, (maxX / 5) + 30, 35);
         setXY(l[5], 2, 1, -50, -(maxY / 2) + 200);
         setXY(l[6], 2, maxY, -50, 5);
         l[6].setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
