@@ -203,16 +203,21 @@ public class solutionsUI {
     private int dpSolution(float totalHours) {
         int n = tasks.size();
         int time = Math.round(totalHours * 2);
-
+        long start = System.nanoTime();
         int[] dp = new int[time + 1];
         boolean[][] take = new boolean[n][time + 1];
 
-        long start = System.nanoTime();
+        // Initialize The DP to The First Task
+        int firstTaskT = Math.round(tasks.get(0).getTime() * 2);
+        int firstTaskP = tasks.get(0).getProdctivity();
+        for (int j = firstTaskT; j <= time; j++) {
+            dp[j] = firstTaskP;
+            take[0][j] = true;
+        }
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 1; i < n; i++) {
             int taskTime = Math.round(tasks.get(i).getTime() * 2);
             int taskProductivity = tasks.get(i).getProdctivity();
-
             for (int j = time; j >= taskTime; j--) {
                 int select = dp[j - taskTime] + taskProductivity;
                 if (select > dp[j]) {
@@ -223,12 +228,10 @@ public class solutionsUI {
         }
 
         timeDP = System.nanoTime() - start;
-
         showSelectedTasksDP(take, time);
         buildDPGridHeader(time);
         fillTable(dp);
         dpTable.setContent(dpGrid);
-
         return dp[time];
     }
 
@@ -245,7 +248,6 @@ public class solutionsUI {
             }
         }
     }
-
 
     private void buildDPGridHeader(int time) {
         dpGrid.getChildren().clear();
@@ -299,7 +301,7 @@ public class solutionsUI {
         int used = 0;
         int last = -1;
 
-        myArrayList<String> picked = new myArrayList<>(tasks.size());
+        myArrayList<Task> selected = new myArrayList<>(tasks.size());
         long start = System.nanoTime();
 
         for (int i = 0; i < tasks.size() && totalTime > 0; i++) {
@@ -310,7 +312,7 @@ public class solutionsUI {
                 totalTime -= t;
                 used += t;
                 last = i;
-                picked.add(tasks.get(i).toString());
+                selected.add(tasks.get(i));
             }
         }
         // Time it Took The Greedy Solution to Execute
@@ -318,12 +320,12 @@ public class solutionsUI {
         timeGreedy = end - start;
 
         // Display Selected Tasks
-        for (int i = 0; i < picked.size(); i++)
-            this.selectedTasks[1].getItems().add(picked.get(i));
+        for (int i = 0; i < selected.size(); i++)
+            this.selectedTasks[1].getItems().add(selected.get(i).toString());
 
         // Display Greedy Solution Statistics
         ta[0].setText(
-                "Total Selected Tasks: " + picked.size() +
+                "Total Selected Tasks: " + selected.size() +
                         "\n\nLast Selected Item: " + (last == -1 ? "None" : tasks.get(last).getName()) +
                         "\n\nHours Used: " + (used / 2.0f) + " / " + totalHoursF +
                         "\n\nRemaining Hours: " + ((Math.round(totalHoursF * 2) - used) / 2.0f) +
@@ -362,22 +364,22 @@ public class solutionsUI {
 
         // List Advantages and Disadvantages of DP
         sb.append("\nDP Advantages:\n");
-        sb.append("*Always optimal\n");
-        sb.append("*Checks All Combinations\n");
+        sb.append("-Always Optimal\n");
+        sb.append("-Checks All Combinations\n");
 
         sb.append("\nDP Disadvantages:\n");
-        sb.append("*Slow\n");
-        sb.append("*More Memory\n");
+        sb.append("-Slower Than Greedy\n");
+        sb.append("-Harder To Track\n");
 
         sb.append("-".repeat((int) (ta[1].getWidth() / 8))).append("\n");
 
         // List Advantages and Disadvantages of Greedy
         sb.append("\nGreedy Advantages:\n");
-        sb.append("*Very fast\n");
-        sb.append("*Easy to Implement\n");
+        sb.append("-Very fast\n");
+        sb.append("-Easy to Implement\n");
 
         sb.append("\nGreedy Disadvantages:\n");
-        sb.append("*Not Always Optimal\n");
+        sb.append("-Not Always Optimal\n");
 
         ta[1].setText(sb.toString());
     }

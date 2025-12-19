@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class fileHandler {
@@ -76,7 +77,9 @@ public class fileHandler {
             }
             // Updates The Textfield and Value of The Solutions UI Total Hours
             ui.setTotalHours(totalHours);
-        } catch (Exception ex) {
+        } catch (InputMismatchException im){
+            new Alert(Alert.AlertType.ERROR, "Invalid File Format").showAndWait();
+        }catch (Exception ex) {
             ex.printStackTrace();
         }
     }
