@@ -179,7 +179,9 @@ public class UI {
     private void readFile() {
         new fileHandler(this).readFile();
         updateTable(tasks);
-        solutionsUI.updateTime(totalHours);
+        if (!tasks.isEmpty()) {
+            solutionsUI.updateTime(totalHours);
+        }
     }
 
     // Configure Rectangle Background Styling
