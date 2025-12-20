@@ -309,10 +309,10 @@ public class solutionsUI {
             // If Task Fits in Remaining Time Add It
             if (t <= totalTime) {
                 productivity += tasks.get(i).getProdctivity();
+                selected.add(tasks.get(i));
                 totalTime -= t;
                 used += t;
                 last = i;
-                selected.add(tasks.get(i));
             }
         }
         // Time it Took The Greedy Solution to Execute
