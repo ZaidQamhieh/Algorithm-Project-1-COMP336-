@@ -66,7 +66,7 @@ public class solutionsUI {
                             "-fx-font-weight: bold;"
             );
         }
-
+        // Set The Size Based on The Monitor Resolution
         dpTable.setPrefViewportWidth(maxX / 2);
         dpTable.setPrefViewportHeight(maxY / 8);
         dpTable.setFitToHeight(false);
@@ -139,7 +139,7 @@ public class solutionsUI {
             p.getChildren().add(labels[i]);
         return p;
     }
-
+    // Set Location and Style for The Labels
     private void labelSettings(Label[] l) {
         for (Label label : l)
             label.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
@@ -154,7 +154,7 @@ public class solutionsUI {
         l[8].setStyle("-fx-font-size: 16px;");
         l[8].setText("if (j ≥ Task Time):\n dp[j] = max( dp[j] , dp[j−Task Time] + Task Productivity )\nelse:\ndp[j] = dp[j]");
     }
-
+    // Sets Size and Style for The Buttons
     private void controlSettings(Control b, int width) {
         b.setPrefWidth(width);
         b.setPrefHeight(30);
@@ -199,7 +199,7 @@ public class solutionsUI {
         int greedyValue = greedySolution(totalHours);
         compareDPGreedy(dpValue, greedyValue);
     }
-
+    // DP Solution
     private int dpSolution(float totalHours) {
         int n = tasks.size();
         int time = Math.round(totalHours * 2);
@@ -229,12 +229,12 @@ public class solutionsUI {
 
         timeDP = System.nanoTime() - start;
         showSelectedTasksDP(take, time);
-        buildDPGridHeader(time);
+        buildDPColumns(time);
         fillTable(dp);
         dpTable.setContent(dpGrid);
         return dp[time];
     }
-
+    // Shows Selected Tasks Based on if I was Selected in The ListView
     private void showSelectedTasksDP(boolean[][] take, int time) {
         selectedTasks[0].getItems().clear();
 
@@ -248,8 +248,8 @@ public class solutionsUI {
             }
         }
     }
-
-    private void buildDPGridHeader(int time) {
+    // Makes The Column Name For Each Half Hour
+    private void buildDPColumns(int time) {
         dpGrid.getChildren().clear();
         dpGrid.setHgap(0);
         dpGrid.setVgap(0);
@@ -273,7 +273,7 @@ public class solutionsUI {
             dpGrid.add(l, j + 1, 0);
         }
     }
-
+    // Fills The Row With The Final dp Array
     private void fillTable(int[] dp) {
         int width = 80;
         int height = 30;
